@@ -1,0 +1,10 @@
+{
+  "name": "fundraising-reader",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --use-env-proxy scripts/dev.mjs",
+    "build": "bash scripts/build.sh",
+    "validate": "node scripts/validate-artifact.mjs"
+  }
+}
