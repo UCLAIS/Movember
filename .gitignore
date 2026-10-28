@@ -4,3 +4,5 @@ node_modules/
 .local/
 .env
 .env.local
+.DS_Store
+source-history.bundle

@@ -102,7 +102,8 @@ test('only saved sources may be fetched and no browser writes are exposed on the
   assert.equal((await worker.fetch(request('/api/totals?platform=justgiving&url='+encodeURIComponent(otherTeam)),env)).status,403);
   const response=await worker.fetch(request('/'),env),html=await response.text();
   assert.doesNotMatch(html,/<textarea|<form|method:'PUT'|localStorage|remove\.addEventListener/);
-  assert.match(html,/Refresh totals/);
+  assert.match(html,/UCL Societies’ November Giving Leaderboard/);
+  assert.doesNotMatch(html,/Refresh totals|Last checked/);
   for(const [path,identity] of [['/',{}],['/admin',owner]]){
    const r=await worker.fetch(request(path,identity),env),h=await r.text(),csp=r.headers.get('Content-Security-Policy');
    assert.doesNotMatch(csp,/unsafe-inline/);assert.match(csp,/frame-ancestors 'none'/);

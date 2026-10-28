@@ -6,7 +6,7 @@ The leaderboard at `/` is read-only. Manage Teams opens `/admin/login`, which di
 
 The owner adds one team using separate name and fundraising URL fields. Each saved team has Edit and Remove controls and a short source link. Names are optional and limited to 80 characters; a blank name uses the fundraising page name. Entries are stored as `{name, url}` objects. Old link-only records are normalised on read without rewriting them. Starts with https://uk.movember.com/team/2492140 when no list has been saved. Up to 30 pages are supported. Ties share competition ranks (1, 1, 3), and money ranks within each currency. Only explicit team-member counts enter the membership ranking.
 
-Every page load, manual refresh, visible-tab return and 60-second refresh reads the approved list from the server and makes new upstream requests. Requests use no-store plus no-cache request headers and responses use no-store. No successful application cache is reused, and no browser-local team list is trusted. Origin platforms control when their totals update. Failed or stale readings are explicitly labelled and excluded from rankings.
+Each page load reads the approved list from the server and makes new upstream requests. Reload the webpage to update the list and totals. Changing the ranking, returning to the tab or leaving it open does not fetch again. Requests use no-store plus no-cache request headers and responses use no-store. No successful application cache is reused, and no browser-local team list is trusted. Origin platforms control when their totals update. Failed or stale readings are explicitly labelled and excluded from rankings.
 
 ## Access
 

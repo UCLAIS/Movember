@@ -1,9 +1,10 @@
 import http from 'node:http';
 import worker from '../worker/index.js';
 import {mkdirSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {localD1} from './local-d1.mjs';
 mkdirSync(new URL('../.local/',import.meta.url),{recursive:true});
-const env={DB:localD1(new URL('../.local/leaderboard.sqlite',import.meta.url).pathname)};
+const env={DB:localD1(fileURLToPath(new URL('../.local/leaderboard.sqlite',import.meta.url)))};
 const portFlag=process.argv.indexOf('--port');
 const port=Number(portFlag>=0?process.argv[portFlag+1]:(process.env.PORT||3000));
 http.createServer(async(incoming,outgoing)=>{

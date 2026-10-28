@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {runInNewContext} from 'node:vm';
 import worker,{rankRows,canonicalUrl,parseMovember,parseJustGiving} from '../worker/index.js';
 import {localD1} from '../scripts/local-d1.mjs';
 
@@ -54,4 +55,44 @@ test('served client uses fresh requests and has valid JavaScript',async()=>{
  new Function(script);
  assert.match(script,/cache:'no-store'/);
  assert.doesNotMatch(script,/JSON\.stringify\(.*data/);
+});
+
+test('each page load fetches once; sorting, tab returns and elapsed time do not refetch',async()=>{
+ const html=await (await worker.fetch(new Request('https://app.test/'))).text();
+ const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+ const calls=[];
+ class Element extends EventTarget{
+  constructor(){super();this.children=[];this.attributes={};this.textContent='';}
+  append(child){this.children.push(child);}
+  replaceChildren(...children){this.children=children;}
+  setAttribute(name,value){this.attributes[name]=value;}
+ }
+ const settle=async()=>{for(let i=0;i<5;i++)await new Promise(setImmediate);};
+ async function openPage(){
+  const elements=new Map(),document=new EventTarget(),window=new EventTarget(),intervals=[];
+  document.hidden=false;
+  document.getElementById=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+  document.createElement=()=>new Element();
+  runInNewContext(script,{document,window,Intl,URL,setInterval:callback=>intervals.push(callback),fetch:async(url,init)=>{
+   assert.equal(init.cache,'no-store');calls.push(url);
+   return Response.json(url==='/api/teams'
+    ?{teams:[{url:sourceUrl,name:'UCL Swim Team'}],canEdit:false}
+    :{name:'UCL Swim Team',status:'fresh',amountMinor:1000,currency:'GBP',people:4,peopleLabel:'Team members',giftAidMinor:null});
+  }});
+  await settle();
+  assert.equal(elements.get('rows').attributes['aria-busy'],'false');
+  return {elements,document,window,intervals};
+ }
+ const page=await openPage();
+ assert.equal(calls.length,2);
+ page.elements.get('sort-members').dispatchEvent(new Event('click'));
+ assert.equal(page.elements.get('sort-members').attributes['aria-pressed'],'true');
+ page.elements.get('sort-raised').dispatchEvent(new Event('click'));
+ assert.equal(page.elements.get('sort-raised').attributes['aria-pressed'],'true');
+ page.document.dispatchEvent(new Event('visibilitychange'));
+ const restored=new Event('pageshow');Object.defineProperty(restored,'persisted',{value:true});
+ page.window.dispatchEvent(restored);
+ for(const tick of page.intervals)tick();
+ await settle();assert.equal(calls.length,2);
+ await openPage();assert.equal(calls.length,4);
 });
