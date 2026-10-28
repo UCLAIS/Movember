@@ -2,7 +2,9 @@
 
 A plain HTML leaderboard, a separate owner-only admin page, and a dependency-free Cloudflare Worker runtime. A small D1 table stores the approved fundraising URLs.
 
-The leaderboard at `/` is read-only. The signed-in owner adds or removes links at `/admin`, reached through `/admin/login`. Starts with https://uk.movember.com/team/2492140 when no list has been saved. The owner can save up to 30 Movember or JustGiving links. Both connectors are detected automatically. Ties share competition ranks (1, 1, 3), and money ranks within each currency. Only explicit team-member counts enter the membership ranking.
+The leaderboard at `/` is read-only. Manage Teams opens `/admin/login`, which displays a server-verified owner confirmation before linking to the editor at `/admin`. Existing authorised sessions do not require a second password prompt. Both routes check access independently. Anonymous visitors go through platform sign-in; signed-in non-owners receive 404.
+
+The owner adds one team using separate name and fundraising URL fields. Each saved team has Edit and Remove controls and a short source link. Names are optional and limited to 80 characters; a blank name uses the fundraising page name. Entries are stored as `{name, url}` objects. Old link-only records are normalised on read without rewriting them. Starts with https://uk.movember.com/team/2492140 when no list has been saved. Up to 30 pages are supported. Ties share competition ranks (1, 1, 3), and money ranks within each currency. Only explicit team-member counts enter the membership ranking.
 
 Every page load, manual refresh, visible-tab return and 60-second refresh reads the approved list from the server and makes new upstream requests. Requests use no-store plus no-cache request headers and responses use no-store. No successful application cache is reused, and no browser-local team list is trusted. Origin platforms control when their totals update. Failed or stale readings are explicitly labelled and excluded from rankings.
 
@@ -20,7 +22,7 @@ Install the development dependencies, then use `npm run dev` for a local read-on
 
 `GET /api/totals?platform=movember&url=https%3A%2F%2Fuk.movember.com%2Fteam%2F2492140`
 
-Use `platform=justgiving` for the other connector. Returns integer minor currency units, currency, people, peopleLabel, sourceUrl, checkedAt and freshness status. Host/path are validated on requests and redirects. Response size and request time are capped. A bounded Worker memory map retains successful readings solely for an explicitly stale failure fallback. A fresh fetch is always attempted first. `GET /api/teams` reads the shared list; `PUT /api/teams` is owner-only and takes `{teams: string[], revision: number}`.
+Use `platform=justgiving` for the other connector. Returns integer minor currency units, currency, people, peopleLabel, sourceUrl, checkedAt and freshness status. `name` uses the saved display name when present; `pageName` retains the platform name. Host/path are validated on requests and redirects. Response size and request time are capped. A bounded Worker memory map retains successful readings solely for an explicitly stale failure fallback. A fresh fetch is always attempted first. `GET /api/teams` reads the shared list; `PUT /api/teams` is owner-only and takes `{teams: {name: string, url: string}[], revision: number}`. Legacy string entries are also accepted.
 
 Movember reads the current campaign headline and explicit numMembers metadata. Last year's total is separate. JustGiving reads the exact donation summary aggregate, excluding separately reported Gift Aid. Teams show member counts; campaigns show fundraisers. Individuals show supporters when published, otherwise donations explicitly labelled as such. Missing counts remain unavailable. GBP/EUR and explicitly prefixed USD/CAD/AUD are supported. Ambiguous dollar currencies are rejected.
 

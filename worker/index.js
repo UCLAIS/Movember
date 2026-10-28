@@ -1,4 +1,4 @@
-// One HTML page and one read-only endpoint. No runtime dependencies.
+// Small HTML pages and checked server endpoints. No runtime dependencies.
 // Retained only as an explicitly stale fallback. Successful values are never reused.
 const lastSuccessful = new Map();
 const DEFAULT_TEAMS = ['https://uk.movember.com/team/2492140'];
@@ -13,11 +13,16 @@ export function validateTeams(values) {
   if (!Array.isArray(values) || values.length > 100) throw new Error('Provide a list of up to 30 fundraising links.');
   const result = [];
   for (const value of values) {
-    if (typeof value !== 'string' || value.length > 500) throw new Error('Each entry must be a fundraising URL.');
-    let u;try {u = new URL(value.trim().replace(/;+$/, ''));}catch {throw new Error('Enter a full fundraising page URL.');}
+    const link = typeof value === 'string' ? value : value?.url;
+    const name = typeof value === 'string' ? '' : (value?.name ?? '');
+    if (typeof link !== 'string' || link.length > 500) throw new Error('Each team needs a fundraising URL.');
+    if (typeof name !== 'string' || name.trim().length > 80 || /[\u0000-\u001f\u007f]/.test(name)) throw new Error('Team names must be 80 characters or fewer, with no line breaks.');
+    let u;try {u = new URL(link.trim().replace(/;+$/, ''));}catch {throw new Error('Enter a full fundraising page URL.');}
     const platform = u.hostname === 'uk.movember.com' ? 'movember' : 'justgiving';
-    const url = canonicalUrl(value, platform);
-    if (!result.includes(url)) result.push(url);
+    const url = canonicalUrl(link, platform);
+    const duplicate=result.find(team=>team.url===url);
+    if (duplicate && duplicate.name !== name.trim()) throw new Error('The same fundraising page cannot have two different team names. Edit its existing entry.');
+    if (!duplicate) result.push({url,name:name.trim()});
   }
   if (result.length > 30) throw new Error('Please use no more than 30 different links.');
   return result;
@@ -25,7 +30,8 @@ export function validateTeams(values) {
 async function savedTeams(env) {
   if (!env.DB) throw new Error('The saved team list is temporarily unavailable.');
   const row = await env.DB.prepare('SELECT teams_json, revision FROM leaderboard_settings WHERE id = 1').first();
-  return row ? {teams:JSON.parse(row.teams_json),revision:row.revision} : {teams:DEFAULT_TEAMS,revision:0};
+  // Upgrade old link-only records on read, without changing the stored list.
+  return row ? {teams:validateTeams(JSON.parse(row.teams_json)),revision:row.revision} : {teams:validateTeams(DEFAULT_TEAMS),revision:0};
 }
 
 export function canonicalUrl(input, platform) {
@@ -168,7 +174,7 @@ const page = String.raw`<!doctype html>
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18232b;background:#f6f7f8;color-scheme:light}*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:48px auto;padding:0 24px}h1{font-size:28px;letter-spacing:-.8px;margin:0 0 8px}header p{margin:0;color:#5d6a75;font-size:14px}.panel{background:white;border:1px solid #dce2e5;border-radius:10px;margin-top:24px;padding:22px}label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}textarea{display:block;width:100%;resize:vertical;min-height:106px;border:1px solid #cbd3d9;border-radius:6px;padding:12px;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:#27363e;background:#fff}textarea:focus,button:focus-visible{outline:2px solid #7a9eb7;outline-offset:3px}.actions{display:flex;align-items:center;gap:12px;margin-top:12px}button{font:inherit;font-size:13px;font-weight:600;border:1px solid #253947;border-radius:6px;background:#253947;color:white;padding:10px 15px;cursor:pointer}button:hover{background:#3b5363}button:disabled{opacity:.6;cursor:wait}.help{font-size:12px;color:#5d6a75;line-height:1.6;margin:8px 0 0}.actions .help{margin:0}.toolbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin:24px 0 14px}.sorts{display:flex;gap:6px}.sorts button{background:#fff;color:#425463;border-color:#cbd3d9}.sorts button[aria-pressed=true]{background:#253947;border-color:#253947;color:white}.summary{font-size:12px;color:#5d6a75;margin:0;line-height:1.5}.table-wrap{overflow-x:auto;border:1px solid #dce2e5;border-radius:10px;background:#fff}table{width:100%;border-collapse:collapse;font-size:13px;text-align:left;min-width:740px}th{font-size:11px;letter-spacing:.25px;background:#edf1f3;color:#51606c;font-weight:600;padding:14px 16px}td{padding:17px 16px;border-top:1px solid #edf0f2;vertical-align:top}th.numeric,td.numeric{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.rank{width:60px;color:#586775;font-weight:600}.team-name{display:block;font-weight:600;line-height:1.5;color:#253947;text-underline-offset:3px;max-width:360px}.sub{display:block;color:#64717c;font-size:11px;line-height:1.6;margin-top:3px;overflow-wrap:anywhere}.value{font-weight:600;font-size:15px}.time{font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}.status{font-size:11px;color:#236f51;display:block;margin-top:4px}.status.stale,.status.error{color:#885111}.status.loading{color:#5d6a75}.message{font-size:12px;color:#885111;margin:12px 0;line-height:1.7;white-space:pre-line}.message:empty{display:none}.notes{font-size:12px;line-height:1.8;color:#5d6a75;margin:16px 0}.empty{text-align:center;color:#65717b;padding:36px}.remove{font-weight:400;background:transparent;color:#65717b;border:0;padding:2px 0;margin-top:5px;font-size:11px}.remove:hover{background:transparent;color:#253947;text-decoration:underline}.noncurrent{opacity:.8}[hidden]{display:none!important}.actions a{font-size:13px;color:#345a73;text-underline-offset:3px}caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}@media(max-width:650px){main{margin:28px auto;padding:0 16px}.panel{padding:16px}.toolbar{align-items:flex-start;flex-direction:column;gap:10px}.actions{align-items:flex-start;flex-direction:column}h1{font-size:25px}}
 </style></head><body><main>
 <header><h1>Fundraising leaderboard</h1><p>Compare teams by money raised or team size.</p></header>
-<div class="actions"><button type="button" id="refresh">Refresh totals</button><a href="/admin" id="admin-link" hidden>Manage teams</a><span class="help">Read-only leaderboard · fresh data on every load</span></div><p id="errors" class="message" role="alert"></p>
+<div class="actions"><button type="button" id="refresh">Refresh totals</button><a href="/admin/login" id="admin-link" hidden>Manage teams</a><span class="help">Read-only leaderboard · fresh data on every load</span></div><p id="errors" class="message" role="alert"></p>
 <div class="toolbar"><div class="sorts" role="group" aria-label="Rank teams by"><button type="button" id="sort-raised" aria-pressed="true">By raised</button><button type="button" id="sort-members" aria-pressed="false">By team members</button></div><p id="summary" class="summary" role="status" aria-live="polite">Ready to load.</p></div>
 <div class="table-wrap"><table><caption>Fundraising rankings. Equal values share a rank.</caption><thead><tr><th scope="col">Rank</th><th scope="col">Team / page</th><th scope="col" class="numeric">Raised</th><th scope="col" class="numeric">Team members</th><th scope="col">Last checked · London</th></tr></thead><tbody id="rows"><tr><td colspan="5" class="empty">No teams have been added yet.</td></tr></tbody></table></div>
 <p id="ranking-note" class="help"></p><p class="notes">Movember uses the current campaign total. JustGiving totals exclude Gift Aid. Only explicit team membership counts are ranked by team size; supporters and donations are not team members. Failed or stale readings are left unranked. Equal values share a rank.<br>Automatically refreshes every 60 seconds while this page is visible. The source platform controls when donations appear in its own totals.</p>
@@ -189,7 +195,7 @@ const page = String.raw`<!doctype html>
   for(const row of ordered){
    const d=row.data,tr=document.createElement('tr');if(row.status!=='fresh')tr.className='noncurrent';
    cell(tr,busy?'—':row.rank===null?'—':String(row.rank),'rank');
-   const team=cell(tr);const link=document.createElement('a');link.className='team-name';link.textContent=d?d.name:new URL(row.url).pathname;link.href=row.url;link.target='_blank';link.rel='noopener noreferrer';team.append(link);
+   const team=cell(tr);const link=document.createElement('a');link.className='team-name';link.textContent=row.name||(d?d.name:new URL(row.url).pathname);link.href=row.url;link.target='_blank';link.rel='noopener noreferrer';team.append(link);
    sub(team,(row.platform==='movember'?'Movember':'JustGiving')+(d?' · '+d.period:''));
    if(row.error)sub(team,row.error,'sub');
    const raised=cell(tr,undefined,'numeric');sub(raised,d?money(d):'—','value');
@@ -223,7 +229,7 @@ const page = String.raw`<!doctype html>
    busy=false;button.disabled=false;button.textContent='Refresh totals';errors.textContent=error.message;render();return;
   }
   const previous=new Map(rows.map(row=>[row.url,row.data]));
-  rows=links.map(url=>({url,platform:platformOf(url),status:'loading',data:previous.get(url)||null,error:null}));
+  rows=links.map(team=>({url:team.url,name:team.name,platform:platformOf(team.url),status:'loading',data:previous.get(team.url)||null,error:null}));
   render();
   let index=0;
   async function next(){
@@ -250,35 +256,67 @@ const page = String.raw`<!doctype html>
 </script></body></html>
 `;
 
+const adminCheckPage=String.raw`<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administrator verified</title><style>
+body{font-family:system-ui,sans-serif;color:#18232b;background:#f6f7f8;margin:0}main{max-width:460px;margin:80px auto;padding:28px;background:white;border:1px solid #dce2e5;border-radius:10px}h1{font-size:25px;letter-spacing:-.5px}p{line-height:1.7;font-size:14px;color:#5d6a75}.badge{color:#236f51;font-size:13px;font-weight:600}a{display:inline-block;font-size:14px;color:#345a73;margin-top:16px}.button{background:#253947;color:white;padding:12px 16px;border-radius:6px;text-decoration:none;margin-right:16px}@media(max-width:550px){main{margin:32px 16px;padding:22px}}
+</style></head><body><main><p class="badge">Owner account verified</p><h1>Administrator access confirmed</h1><p>Your existing sign-in belongs to the authorised owner. You can manage the approved teams.</p><p>An existing owner session can be recognised without asking for your password again.</p><a class="button" href="/admin">Open team manager</a><a href="/">Back to leaderboard</a></main></body></html>`;
+
 const adminPage=String.raw`<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage teams · Fundraising leaderboard</title><style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#18232b;background:#f6f7f8;color-scheme:light}*{box-sizing:border-box}main{max-width:760px;margin:56px auto;padding:0 24px}h1{font-size:27px;letter-spacing:-.7px;margin-bottom:8px}p{color:#5d6a75;font-size:13px;line-height:1.7}a{color:#345a73;text-underline-offset:3px;font-size:13px}.panel{background:white;border:1px solid #dce2e5;border-radius:10px;padding:24px;margin-top:24px}label{font-size:13px;font-weight:600;display:block;margin-bottom:10px}textarea{box-sizing:border-box;width:100%;min-height:260px;resize:vertical;border:1px solid #cbd3d9;border-radius:6px;padding:12px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace}button{background:#253947;color:white;font:600 13px system-ui;border:1px solid #253947;border-radius:6px;padding:10px 15px;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.actions{display:flex;gap:10px;align-items:center}.secondary{background:white;color:#253947}textarea:focus,button:focus-visible{outline:2px solid #7a9eb7;outline-offset:3px}.message{white-space:pre-line;font-size:13px;line-height:1.7}.message[data-error=true]{color:#993f31}.badge{font-size:12px;color:#236f51}@media(max-width:600px){main{margin:28px auto;padding:0 16px}.panel{padding:16px}}
-</style></head><body><main><a href="/">← Leaderboard</a><h1>Manage teams</h1><p class="badge">Owner access only</p><p>Add or remove fundraising pages here. The leaderboard displays this saved list and fetches the totals automatically.</p><section class="panel"><form id="teams-form"><label for="team-links">Approved links · one per line</label><textarea id="team-links" spellcheck="false" autocomplete="off" disabled aria-describedby="help"></textarea><p id="help">Movember teams and JustGiving pages are supported. Maximum 30 distinct links. Removing a line removes that entry from the leaderboard.</p><div class="actions"><button id="save" type="submit" disabled>Save team list</button><button id="reload" type="button" class="secondary">Reload saved list</button></div></form><p id="message" class="message" role="status" aria-live="polite">Loading your saved teams…</p></section></main><script>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#18232b;background:#f6f7f8;color-scheme:light}*{box-sizing:border-box}main{max-width:850px;margin:48px auto;padding:0 24px}h1{font-size:27px;letter-spacing:-.7px;margin-bottom:8px}h2{font-size:17px;margin:0 0 18px}p{color:#5d6a75;font-size:13px;line-height:1.7}a{color:#345a73;text-underline-offset:3px;font-size:13px}.panel{background:white;border:1px solid #dce2e5;border-radius:10px;padding:22px;margin-top:22px}.badge{color:#236f51;font-size:12px}.fields{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}label{font-size:13px;font-weight:600;display:block;margin-bottom:8px}input{width:100%;min-width:0;border:1px solid #cbd3d9;border-radius:6px;padding:11px;font:14px system-ui;color:#18232b;background:white}.hint{font-size:11px;margin:7px 0 0}fieldset{border:0;padding:0;margin:0}button{background:#253947;color:white;font:600 13px system-ui;border:1px solid #253947;border-radius:6px;padding:10px 15px;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.actions{display:flex;gap:9px;align-items:center;margin-top:18px}.secondary{background:white;color:#253947}.message{white-space:pre-line;font-size:13px;line-height:1.7;min-height:22px}.message[data-error=true]{color:#993f31}input:focus,button:focus-visible{outline:2px solid #7a9eb7;outline-offset:3px}.list{list-style:none;padding:0;margin:0}.team-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 0;border-top:1px solid #edf0f2}.team-row:first-child{border:0;padding-top:0}.team-info{min-width:0}.team-name{display:block;font-weight:600;font-size:14px;overflow-wrap:anywhere}.source{display:inline-block;font-size:12px;margin-top:6px;overflow-wrap:anywhere}.row-actions{display:flex;gap:8px;flex-shrink:0}.row-actions button{font-size:12px;padding:7px 11px}.remove{color:#993f31;border-color:#d9c7c2;background:white}.saved-header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}.saved-header h2{margin:0}.saved-header button{font-size:12px;padding:7px 11px}[hidden]{display:none!important}@media(max-width:650px){main{margin:28px auto;padding:0 16px}.panel{padding:18px}.fields{grid-template-columns:1fr}.team-row{align-items:flex-start;flex-direction:column;gap:12px}.saved-header{align-items:flex-start}h1{font-size:25px}}
+</style></head><body><main><a href="/">← Leaderboard</a><h1>Manage teams</h1><p class="badge">Owner account verified · authorised to make changes</p><p>Choose the name shown on the leaderboard, then paste the fundraising page link. Add, edit or remove one team at a time.</p>
+<section class="panel"><h2 id="form-title">Add a team</h2><form id="team-form"><fieldset id="team-fields" disabled><div class="fields"><div><label for="team-name">Team name</label><input id="team-name" maxlength="80" placeholder="e.g. UCL Swimming" autocomplete="off"><p class="hint">Optional. Leave blank to use the fundraising page’s name.</p></div><div><label for="team-url">Fundraising page link</label><input id="team-url" type="url" required placeholder="Paste a Movember or JustGiving link" spellcheck="false" autocomplete="off"><p class="hint">One page per team. Up to 30 teams.</p></div></div><div class="actions"><button id="save" type="submit">Add team</button><button id="cancel" type="button" class="secondary" hidden>Cancel edit</button></div></fieldset></form><p id="message" class="message" role="status" aria-live="polite">Verifying your access and loading teams…</p></section>
+<section class="panel"><div class="saved-header"><h2 id="saved-title">Saved teams</h2><button id="reload" type="button" class="secondary">Reload saved teams</button></div><ul id="teams" class="list" aria-label="Approved teams"></ul></section></main><script>
 (()=>{
- const input=document.getElementById('team-links'),save=document.getElementById('save'),reload=document.getElementById('reload'),message=document.getElementById('message');
- let revision=null,busy=false;
+ ${canonicalUrl.toString()}
+ const name=document.getElementById('team-name'),url=document.getElementById('team-url'),fieldset=document.getElementById('team-fields'),save=document.getElementById('save'),cancel=document.getElementById('cancel'),reload=document.getElementById('reload'),message=document.getElementById('message'),list=document.getElementById('teams');
+ let revision=null,busy=false,teams=[],editing=null;
  function state(text,error=false){message.textContent=text;message.dataset.error=String(error);}
- function lock(value){busy=value;save.disabled=value||revision===null;reload.disabled=value;input.disabled=value||revision===null;}
- async function json(url,options={}){
-  const response=await fetch(url,{cache:'no-store',...options});
-  if(!response.headers.get('content-type')?.includes('application/json'))throw new Error('Please reload and sign in again to manage the team list.');
+ function lock(value){busy=value;fieldset.disabled=value||revision===null;reload.disabled=value;for(const b of list.querySelectorAll('button'))b.disabled=value||revision===null;}
+ function sourceLabel(link){const u=new URL(link);return(u.hostname==='uk.movember.com'?'Movember · Team ':'JustGiving · ')+decodeURIComponent(u.pathname.split('/').pop());}
+ function reset(){editing=null;name.value='';url.value='';save.textContent='Add team';cancel.hidden=true;document.getElementById('form-title').textContent='Add a team';}
+ function render(){
+  list.replaceChildren();document.getElementById('saved-title').textContent='Saved teams ('+teams.length+')';
+  for(const [index,team] of teams.entries()){
+   const row=document.createElement('li');row.className='team-row';
+   const info=document.createElement('div');info.className='team-info';
+   const title=document.createElement('span');title.className='team-name';title.textContent=team.name||sourceLabel(team.url);info.append(title);
+   const link=document.createElement('a');link.className='source';link.href=team.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=sourceLabel(team.url)+' ↗';info.append(link);row.append(info);
+   const actions=document.createElement('div');actions.className='row-actions';
+   const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Edit';edit.disabled=busy||revision===null;edit.setAttribute('aria-label','Edit '+(team.name||sourceLabel(team.url)));
+   edit.addEventListener('click',()=>{editing=index;name.value=team.name;url.value=team.url;save.textContent='Save team';cancel.hidden=false;document.getElementById('form-title').textContent='Edit team';state('Edit the name or link, then save.');name.focus();});actions.append(edit);
+   const remove=document.createElement('button');remove.type='button';remove.className='remove';remove.textContent='Remove';remove.disabled=busy||revision===null;remove.setAttribute('aria-label','Remove '+(team.name||sourceLabel(team.url)));
+   remove.addEventListener('click',async()=>{if(busy)return;await commit(teams.filter((_,i)=>i!==index),'Team removed.');});actions.append(remove);row.append(actions);list.append(row);
+  }
+  if(!teams.length){const empty=document.createElement('li');empty.textContent='No teams added yet.';list.append(empty);}
+ }
+ async function json(path,options={}){
+  const response=await fetch(path,{cache:'no-store',...options});
+  if(!response.headers.get('content-type')?.includes('application/json'))throw new Error('Please reload and sign in again to manage teams.');
   const data=await response.json();if(!response.ok)throw new Error(data.error||'The request could not be completed.');return data;
  }
  async function load(){
   if(busy)return;lock(true);
-  try{const d=await json('/api/teams');if(!d.canEdit)throw new Error('This account cannot change the team list.');revision=d.revision;input.value=d.teams.join('\n');state(d.teams.length+' saved '+(d.teams.length===1?'page':'pages')+'. Changes take effect after saving.');}
+  try{const d=await json('/api/teams');if(!d.canEdit)throw new Error('This account cannot change the team list.');revision=d.revision;teams=d.teams;reset();render();state('Owner verified. '+teams.length+' '+(teams.length===1?'team':'teams')+' loaded.');}
   catch(error){revision=null;state(error.message,true);}finally{lock(false);}
  }
- document.getElementById('teams-form').addEventListener('submit',async event=>{
-  event.preventDefault();if(busy||revision===null)return;lock(true);state('Saving…');
+ async function commit(next,text){
+  if(busy||revision===null)return false;lock(true);state('Saving…');
+  try{const d=await json('/api/teams',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({teams:next,revision})});revision=d.revision;teams=d.teams;reset();render();state(text+' The leaderboard will update on its next refresh.');return true;}
+  catch(error){state(error.message,true);return false;}finally{lock(false);}
+ }
+ document.getElementById('team-form').addEventListener('submit',async event=>{
+  event.preventDefault();if(busy||revision===null)return;
   try{
-   const teams=input.value.split(/[\s,;]+/).filter(Boolean);
-   const d=await json('/api/teams',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({teams,revision})});
-   revision=d.revision;input.value=d.teams.join('\n');state('Saved '+d.teams.length+' '+(d.teams.length===1?'page':'pages')+'. The leaderboard will use this list on its next refresh.');
-  }catch(error){state(error.message,true);}finally{lock(false);}
+   const raw=url.value.trim(),platform=new URL(raw.replace(/;+$/,'')).hostname==='uk.movember.com'?'movember':'justgiving';
+   const entry={name:name.value.trim(),url:canonicalUrl(raw,platform)};
+   if(teams.some((team,index)=>index!==editing&&team.url===entry.url))throw new Error('That fundraising page is already listed. Use its Edit button.');
+   const next=teams.slice();if(editing===null)next.push(entry);else next[editing]=entry;
+   await commit(next,editing===null?'Team added.':'Team updated.');
+  }catch(error){state(error.message,true);}
  });
- reload.addEventListener('click',load);load();
+ cancel.addEventListener('click',()=>{reset();state('Edit cancelled.');});reload.addEventListener('click',load);load();
 })();
 </script></body></html>`;
+
 
 async function htmlResponse(html,headers,status=200){
  const hash=async value=>{
@@ -327,7 +365,11 @@ export default {
   }
   if(request.method!=='GET')return new Response('Method not allowed',{status:405,headers:{...headers,Allow:'GET'}});
   if(url.pathname==='/')return htmlResponse(page,headers);
-  if(url.pathname==='/admin/login')return Response.redirect(url.origin+'/signin-with-chatgpt?return_to=%2Fadmin',302);
+  if(url.pathname==='/admin/login'){
+   if(canManage(request,env))return htmlResponse(adminCheckPage,headers);
+   if(request.headers.get('oai-authenticated-user-id'))return new Response('Not found',{status:404,headers});
+   return Response.redirect(url.origin+'/signin-with-chatgpt?return_to=%2Fadmin%2Flogin',302);
+  }
   if(url.pathname==='/admin'){
    if(!canManage(request,env))return new Response('Not found',{status:404,headers});
    return htmlResponse(adminPage,headers);
@@ -335,9 +377,10 @@ export default {
   if(url.pathname==='/api/totals'){
    let sourceUrl,platform=url.searchParams.get('platform');
    try{sourceUrl=canonicalUrl(url.searchParams.get('url'),platform);}catch(error){return json({error:error.message},400);}
-   try{if(!(await savedTeams(env)).teams.includes(sourceUrl))return json({error:'This page has not been added by the site owner.'},403);}
+   let approvedTeam;
+   try{approvedTeam=(await savedTeams(env)).teams.find(team=>team.url===sourceUrl);if(!approvedTeam)return json({error:'This page has not been added by the site owner.'},403);}
    catch{return json({error:'The approved team list is temporarily unavailable.'},503);}
-   try{return json(await readTotal(sourceUrl,platform));}
+   try{const data=await readTotal(sourceUrl,platform);return json({...data,pageName:data.name,name:approvedTeam.name||data.name});}
    catch(error){return json({error:error.message},502);}
   }
   return new Response('Not found',{status:404,headers});
