@@ -22,6 +22,20 @@ test('different currencies rank separately, zero is a valid reading',()=>{
  assert.deepEqual(ranked.map(x=>[x.data.name,x.rank]),[['Pounds',1],['Zero',2],['Euro',1]]);
  assert.equal(rankRows([row('Zero',0,0)],'members')[0].rank,1);
 });
+test('relegation follows the selected ranking, includes bottom ties and excludes unranked teams',()=>{
+ const rows=[row('A',300,1),row('B',100,5),row('C',100,2),{...row('Stale',0,0),status:'stale'},row('Missing',200,null)];
+ const bottom=metric=>rankRows(rows,metric).filter(x=>x.isBottom).map(x=>x.data.name);
+ assert.deepEqual(bottom('raised'),['B','C']);
+ assert.deepEqual(bottom('members'),['A']);
+ assert.equal(rankRows(rows,'members').find(x=>x.data.name==='Missing').isBottom,false);
+ assert.equal(rankRows(rows,'raised').find(x=>x.data.name==='Stale').isBottom,false);
+ assert.deepEqual(rankRows([], 'raised'),[]);
+});
+test('relegation never compares ranks across currencies and handles a tied field',()=>{
+ const rows=[row('Pound leader',300,3),row('Pound bottom',100,1),row('Euro leader',500,3,{currency:'EUR'}),row('Euro bottom',200,1,{currency:'EUR'})];
+ assert.deepEqual(rankRows(rows,'raised').filter(x=>x.isBottom).map(x=>x.data.name),['Pound bottom','Euro bottom']);
+ assert.ok(rankRows([row('A',0,0),row('B',0,0)],'raised').every(x=>x.isBottom));
+});
 
 const sourceUrl='https://uk.movember.com/team/2492140';
 function movember(amount){return '<script>var data={"mov.section.currentMospace":{"type":"team","id":"2492140","name":"Test team","numMembers":4}}</script><h1 class="mospace-heroarea--donations-target-amount-number">£'+amount+'</h1><div class="mospace-heroarea--total-donations-past-years">Amount raised last year: £435</div>';}
