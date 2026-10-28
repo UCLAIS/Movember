@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{rankRows,canonicalUrl,parseMovember,parseJustGiving} from '../worker/index.js';
+import {localD1} from '../scripts/local-d1.mjs';
 
 const row=(name,amountMinor,people,extra={})=>({url:'https://example.test/'+name,status:'fresh',data:{name,amountMinor,people,currency:'GBP',peopleLabel:'Team members',...extra}});
 
@@ -24,6 +25,7 @@ test('different currencies rank separately, zero is a valid reading',()=>{
 const sourceUrl='https://uk.movember.com/team/2492140';
 function movember(amount){return '<script>var data={"mov.section.currentMospace":{"type":"team","id":"2492140","name":"Test team","numMembers":4}}</script><h1 class="mospace-heroarea--donations-target-amount-number">£'+amount+'</h1><div class="mospace-heroarea--total-donations-past-years">Amount raised last year: £435</div>';}
 test('every request fetches upstream, with no-store, even inside one minute',async()=>{
+ const DB=localD1(),env={DB};
  const original=globalThis.fetch;let calls=0;
  globalThis.fetch=async(url,init)=>{
   calls++;assert.equal(url,sourceUrl);assert.equal(init.cache,'no-store');assert.match(init.headers['Cache-Control'],/no-cache/);
@@ -31,12 +33,12 @@ test('every request fetches upstream, with no-store, even inside one minute',asy
  };
  const request=()=>new Request('https://app.test/api/totals?platform=movember&url='+encodeURIComponent(sourceUrl));
  try{
-  const a=await (await worker.fetch(request())).json(),b=await (await worker.fetch(request())).json();
+  const a=await (await worker.fetch(request(),env)).json(),b=await (await worker.fetch(request(),env)).json();
   assert.equal(calls,2);assert.equal(a.amountMinor,1000);assert.equal(b.amountMinor,2000);assert.equal(b.cached,false);
   globalThis.fetch=async()=>{throw new Error('Upstream unavailable');};
-  const stale=await (await worker.fetch(request())).json();assert.equal(stale.status,'stale');assert.equal(stale.amountMinor,2000);assert.equal(stale.checkedAt,b.checkedAt);
+  const stale=await (await worker.fetch(request(),env)).json();assert.equal(stale.status,'stale');assert.equal(stale.amountMinor,2000);assert.equal(stale.checkedAt,b.checkedAt);
   assert.equal(rankRows([{status:stale.status,data:stale}],'raised')[0].rank,null);
- }finally{globalThis.fetch=original;}
+ }finally{globalThis.fetch=original;DB.close();}
 });
 test('source validation, current campaign parsing and missing totals fail explicitly',()=>{
  assert.equal(canonicalUrl(sourceUrl+';','movember'),sourceUrl);
