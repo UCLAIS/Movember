@@ -113,3 +113,34 @@ test('only saved sources may be fetched and no browser writes are exposed on the
   }
  }finally{DB.close();}
 });
+
+test('public sign-up guide safely lists approved team links and offers email registration',async()=>{
+ const DB=localD1(),env={DB,LEADERBOARD_OWNER_EMAIL:'owner@example.test'};
+ try{
+  const name='<img src=x onerror=alert(1)>';
+  assert.equal((await worker.fetch(write({teams:[entry(defaultTeam,name),entry(otherTeam,'Society B')],revision:0}),env)).status,200);
+  for(const path of ['/sign-up','/sign-up/']){
+   const response=await worker.fetch(request(path),env),html=await response.text(),csp=response.headers.get('Content-Security-Policy');
+   assert.equal(response.status,200);
+   assert.match(html,/<h1>How to sign up<\/h1>/);
+   assert.match(html,/Every member gets their own page/);
+   assert.match(html,/mailto:president@uclai.co.uk\?/);
+   assert.match(html,/your society’s page/);assert.match(html,/your JustGiving or Movember team page/);
+   assert.ok(html.includes('href="'+defaultTeam+'"'));assert.ok(html.includes('href="'+otherTeam+'"'));
+   assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));assert.ok(!html.includes(name));
+   assert.match(csp,/script-src 'none'/);
+   const style=html.match(/<style>([\s\S]*?)<\/style>/)[1];
+   assert.ok(csp.includes("'sha256-"+createHash('sha256').update(style).digest('base64')+"'"));
+   assert.doesNotMatch(html,/<script>|<form|<input/);
+  }
+  const root=await (await worker.fetch(request('/'),env)).text();
+  assert.match(root,/href="\/sign-up"/);
+  for(const html of [root,await (await worker.fetch(request('/sign-up'),env)).text()]){
+   assert.match(html,/href="https:\/\/help.justgiving.com\/hc\/en-us\/articles\/360002598077-How-to-create-a-Team-page"/);
+   assert.match(html,/Movember%20Workplace%20Fundraising%20Guide%202025%20UK.pdf#page=11/);
+  }
+  assert.equal((await worker.fetch(write({teams:[],revision:1}),env)).status,200);
+  assert.match(await (await worker.fetch(request('/sign-up'),env)).text(),/team links will appear here as they join/);
+  assert.equal((await worker.fetch(request('/api/teams'),env)).status,200);
+ }finally{DB.close();}
+});
