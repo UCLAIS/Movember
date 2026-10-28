@@ -65,6 +65,8 @@ The exported UCL Swim Team snapshot has been restored into the local SQLite data
 
 The public page is titled “UCL Societies’ November Giving Leaderboard”, with friendly competition and committee-forfeit copy. Its purple campus banner and clear hierarchy take inspiration from UCL's homepage; Anton headings and Overpass body text follow Movember's typography. Light and system dark palettes are supported. Assets and licences are recorded in `ASSETS.md`. Refresh behaviour follows the requirements above.
 
+The campaign introduction presents November as our month for giving, takes inspiration from Movember's focus on men's health and welcomes a wider range of charities and causes. Everyone is welcome to participate; the copy does not claim an official Movember partnership. The standings use restrained typography, fine borders and a clear empty state.
+
 ## Suggested opening prompt
 
 Read CODEX_HANDOFF.md and README.md, inspect the source, install dependencies and run the tests. Continue improving this existing fundraising leaderboard. Keep the leaderboard public and read-only, preserve server-side owner-only admin access, custom team names, live data refresh and both rankings. Explain any hosting or authentication migration before changing it.
