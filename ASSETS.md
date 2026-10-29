@@ -9,3 +9,11 @@ The text masthead identifies UCL societies. No official UCL or Movember logo has
 - Overpass: Overpass Project Authors / Red Hat, distributed by `@fontsource-variable/overpass` 5.3.0 under the SIL Open Font License 1.1. See `licences/Overpass-OFL.txt`.
 
 These assets are embedded in the Worker so visitors do not make requests to third-party font or image hosts. Font licences are included in the served stylesheet as well as the source tree. Both npm font archives were checked against their registry SHA-512 integrity values before embedding.
+
+## Local campaign redesign, 29 October 2026
+
+The broader campaign system preserves UCL purple, Anton / Overpass typography, the existing routes and the UCL photograph. Research references include [UCL](https://www.ucl.ac.uk/), [Movember](https://movember.com/), [charity: water](https://www.charitywater.org/) and [Wellcome](https://wellcome.org/). These are design references, not claimed partners or sponsors.
+
+`assets/connected-paper.jpg` is an illustrative studio still life generated with the built-in image_gen tool for the sign-up page. It represents connected participation rather than a real event or identifiable people. Its exact generation prompt and delivery details are in `assets/connected-paper.prompt.txt`.
+
+The design uses shared native CSS tokens and templates across the public pages, owner verification and team manager. No external design-system package is implied. System light and dark palettes, keyboard focus states and reduced-motion preferences are respected.
