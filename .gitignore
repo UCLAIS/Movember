@@ -1,5 +1,6 @@
 dist/
 _site/
+docs/.hallmark/
 site.tar.gz
 node_modules/
 .local/

@@ -1,0 +1,30 @@
+:root {
+  color-scheme: light;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px;
+  --space-md: 16px; --space-lg: 24px; --space-2lg: 32px; --space-xl: 40px;
+  --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-xs: .75rem; --text-sm: .875rem; --text-md: 1rem; --text-lg: 1.2rem;
+  --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem; --text-4xl: 2.488rem;
+  --text-display: var(--text-4xl); --text-section: var(--text-xl); --text-title: var(--text-lg);
+  --color-paper: oklch(98.3% .005 250); --color-paper-2: oklch(95.8% .008 250); --color-paper-3: oklch(92% .012 250);
+  --color-ink: oklch(24% .045 258); --color-ink-2: oklch(33% .055 258); --color-muted: oklch(47% .025 255);
+  --color-rule: oklch(81% .014 250); --color-rule-2: oklch(56% .035 255);
+  --color-accent: oklch(28% .065 258); --color-accent-ink: oklch(98.3% .005 250); --color-accent-deep: oklch(38% .075 258);
+  --color-focus: oklch(45% .13 255); --color-error: oklch(44% .14 24); --color-error-paper: oklch(96% .019 24);
+  --color-disabled: oklch(90% .008 250); --color-success: oklch(37% .06 155);
+  --color-clear: transparent;
+  --background: var(--color-paper); --surface: var(--color-paper-2); --ink: var(--color-ink);
+  --muted: var(--color-muted); --line: var(--color-rule); --control-line: var(--color-rule-2);
+  --accent: var(--color-accent); --accent-hover: var(--color-accent-deep); --accent-on: var(--color-accent-ink);
+  --tint: var(--color-paper-3); --skeleton: var(--color-paper-3);
+  --relegation-background: var(--color-error-paper); --relegation-ink: var(--color-error);
+  --font-display: Anton, Impact, "Arial Narrow", sans-serif;
+  --font-body: Overpass, Arial, sans-serif;
+  --display-weight: 600; --tracking-display: -.025em;
+  --container: 1280px; --gutter: 40px; --gap-columns: 32px;
+  --radius-control: 4px; --rule-hair: 1px; --rule-bar: 2px;
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --dur-micro: 120ms;
+  --z-base: 1; --z-sticky-nav: 300;
+}
+@media (max-width: 60rem) { :root { --gutter: 24px; } }
+@media (max-width: 40rem) { :root { --gutter: 20px; --text-display: var(--text-3xl); } }

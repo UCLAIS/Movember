@@ -3,6 +3,7 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 dist_root="$project_root/dist"
+node "$project_root/scripts/sync-styles.mjs" --check
 
 rm -rf "$dist_root"
 mkdir -p "$dist_root/server" "$dist_root/.openai"

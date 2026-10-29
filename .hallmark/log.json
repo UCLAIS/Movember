@@ -1,0 +1,54 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "Sport, navy palette chosen by user",
+  "axes": [
+   "light",
+   "grotesk",
+   "navy"
+  ],
+  "hero": "none, app screen",
+  "nav": "existing two-destination masthead",
+  "footer": "campaign colophon, stacked guides on phones",
+  "imagery": "existing campus photograph in greyscale beside campaign explanation",
+  "photos": [],
+  "entry": "/",
+  "fingerprint": [
+   "table-first",
+   "compact heading",
+   "horizontal rules",
+   "two-column campaign note",
+   "top masthead",
+   "colophon"
+  ],
+  "sections": [
+   "compact campaign heading",
+   "live society standings",
+   "campaign explanation with existing photograph",
+   "footer"
+  ],
+  "signature": "live fundraising results with red relegation rows",
+  "waived": [],
+  "prompt": "Apply Hallmark to the UCL society leaderboard; off-white and ink navy",
+  "preserved": {
+   "links": "11/11",
+   "script_hooks": "6/6",
+   "headings": "3/3",
+   "figures": "1/1"
+  },
+  "sweep": {
+   "floor": 0,
+   "reflex": 0,
+   "warn": 0,
+   "render": "ran",
+   "before_floor": 7,
+   "before_reflex": 85,
+   "finish_review": "subagent, 2 findings resolved"
+  },
+  "material": "No new assets or placeholders; existing images retained",
+  "date": "2026-10-29"
+ }
+]

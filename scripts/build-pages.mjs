@@ -4,6 +4,7 @@ import {resolve, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {page, signupPage, PUBLIC_SITE_ORIGIN, BACKEND_ORIGIN} from '../worker/index.js';
 import {loadParticipatingTeams} from '../client/participating-teams.js';
+import {syncStyles} from './sync-styles.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = resolve(root, 'docs');
@@ -30,6 +31,7 @@ export function pagesDocument(template, {signup = false} = {}) {
 }
 
 export async function buildPages() {
+  await syncStyles({check: true});
   const domain = (await readFile(resolve(root, 'CNAME'), 'utf8')).trim();
   if (domain !== new URL(PUBLIC_SITE_ORIGIN).hostname) throw new Error('CNAME must match the public origin before building.');
   await rm(output, {recursive: true, force: true});

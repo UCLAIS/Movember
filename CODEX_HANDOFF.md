@@ -76,3 +76,11 @@ The campaign introduction presents November as our month for giving, takes inspi
 ## Suggested opening prompt
 
 Read CODEX_HANDOFF.md and README.md, inspect the source, install dependencies and run the tests. Continue improving this existing fundraising leaderboard. Keep the leaderboard public and read-only, preserve server-side owner-only admin access, custom team names, live data refresh and both rankings. Explain any hosting or authentication migration before changing it.
+
+## Hallmark public frontend update, 29 October 2026
+
+The user chose off-white and ink navy. The public Pages interface now uses that consistent light palette, a compact title before the standings, ruled rows, persistent team-link underlines and mobile rows that put the society above its two figures. Red still marks the bottom-ranked teams. The existing UCL campus photograph moved beside the campaign explanation; the copy and all links remain.
+
+The authored CSS lives in `tokens.css`, `base.css` and `public.css`. Run `npm run styles:sync` after editing it, then `node --test` and `npm run build:pages`; both build paths reject stale embedded CSS. Commit the generated `docs/` with the source. The Worker remains self-contained and dependency-free. All inline scripts, request routing, API behaviour and owner authorisation were verified unchanged. The backend was not redeployed for this frontend-only change.
+
+Hallmark app-scope render checks passed with 0 Floor failures, 0 Reflex findings and 0 warnings, including populated, empty and failed sample states and the sign-up page. The before/after wiring check kept 11/11 links, 6/6 script hooks, 3/3 headings and 1/1 figures. A fresh-context review’s two findings were resolved: persistent society-link underlines and non-wrapping footer guides at narrow widths. Test fixtures and screenshots are local only; production team data was not edited.

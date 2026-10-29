@@ -1,0 +1,26 @@
+{
+  "scanned": "2026-10-29",
+  "findings": {
+    "fonts": "Anton display, Overpass body; embedded licensed fonts, worker/index.js:184-190",
+    "palette": "Purple light/dark tokens in worker/index.js:196; user now chose off-white and ink navy",
+    "motion": "Interaction transitions only; worker/index.js:200",
+    "spacing": "Native CSS; shared canvas 1240px in worker/index.js:197",
+    "framework": "Dependency-free Worker HTML; GitHub Pages export, scripts/build-pages.mjs:1-45",
+    "target": "/ leaderboard is an app screen; /sign-up gets shared palette only; owner routes unchanged",
+    "material": "Existing UCL campus photograph and live table, no added claims or images"
+  },
+  "preserve": [
+    "routes, links, hooks and scripts",
+    "live load-only totals and both rankings",
+    "bottom-team red tint",
+    "current public copy and existing photographs",
+    "owner authentication and API host",
+    "licensed Overpass and Anton font files"
+  ],
+  "introduce": [
+    "off-white and ink navy palette approved by user",
+    "results-sheet composition from Sport, with brand faces retained",
+    "readable CSS sources, explicit scale and state tokens",
+    "Hallmark app-scope render and wiring checks"
+  ]
+}

@@ -17,3 +17,9 @@ The broader campaign system preserves UCL purple, Anton / Overpass typography, t
 `assets/connected-paper.jpg` is an illustrative studio still life generated with the built-in image_gen tool for the sign-up page. It represents connected participation rather than a real event or identifiable people. Its exact generation prompt and delivery details are in `assets/connected-paper.prompt.txt`.
 
 The design uses shared native CSS tokens and templates across the public pages, owner verification and team manager. No external design-system package is implied. System light and dark palettes, keyboard focus states and reduced-motion preferences are respected.
+
+## Hallmark leaderboard redesign, 29 October 2026
+
+The public Pages site now uses the user-selected off-white and ink navy palette, with red reserved for the relegation state. Hallmark’s Sport theme informed the ruled results-sheet treatment; its volt accent and catalog fonts were replaced by the explicit palette choice and the project’s existing licensed faces. Overpass carries the interface, and Anton remains in the campaign wordmark. The display is consistently light rather than following system dark mode.
+
+The existing campus photograph and illustrative sign-up image remain, rendered in greyscale through CSS. No new photographs, logos, figures or fundraising claims were introduced. The shared source styles are `tokens.css`, `base.css` and `public.css` and are embedded into the Worker by `scripts/sync-styles.mjs`. Public layout changes deploy through GitHub Pages; the existing Sites backend and owner sign-in are retained.

@@ -1,0 +1,22 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { scrollbar-color: var(--muted) var(--background); scroll-padding-top: var(--space-lg); }
+body { margin: 0; background: var(--background); color: var(--ink); font-family: var(--font-body); font-size: var(--text-md); line-height: 1.6; font-synthesis: none; -webkit-font-smoothing: antialiased; caret-color: var(--accent); }
+::selection { background: var(--accent); color: var(--accent-on); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+h1, h2, h3 { margin: 0; font-family: var(--font-body); font-weight: var(--display-weight); letter-spacing: var(--tracking-display); line-height: 1.2; overflow-wrap: break-word; min-width: 0; text-wrap: balance; }
+h1 { max-width: 30ch; font-size: var(--text-display); }
+h2 { max-width: 40ch; font-size: var(--text-section); }
+h3 { max-width: 40ch; font-size: var(--text-title); }
+p { margin: 0; text-wrap: pretty; }
+p:not([class]) { max-width: 65ch; }
+img { max-width: 100%; height: auto; display: block; }
+[hidden] { display: none !important; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled, input:disabled { background: var(--color-disabled); color: var(--muted); cursor: not-allowed; opacity: .65; }
+button[aria-busy=true] { cursor: progress; }
+button:active, .action-link:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: no-preference) { button, .action-link { transition: transform var(--dur-micro) var(--ease-out); } }
+@media (prefers-reduced-motion: reduce) { button, .action-link { transition: none; transform: none; } }

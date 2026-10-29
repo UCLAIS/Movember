@@ -6,6 +6,7 @@
     "dev": "node --use-env-proxy scripts/dev.mjs",
     "build": "bash scripts/build.sh",
     "build:pages": "node scripts/build-pages.mjs",
+    "styles:sync": "node scripts/sync-styles.mjs",
     "validate": "node scripts/validate-artifact.mjs",
     "db:generate": "drizzle-kit generate"
   },
