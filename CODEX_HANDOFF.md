@@ -32,7 +32,7 @@ Local preview deliberately does not allow administrator sign-in or trust identit
 
 ## Important deployment boundary
 
-Production currently runs on Sites using a Cloudflare Worker and a D1 database. `.openai/hosting.json` identifies the existing Site and declares its logical `DB` binding. The source history is also mirrored in the Sites-managed Git repository, not a user-selected GitHub repository.
+Production currently runs on Sites using a Cloudflare Worker and a D1 database. `.openai/hosting.json` identifies the existing Site and declares its logical `DB` binding. The source history is stored in [UCLAIS/Movember](https://github.com/UCLAIS/Movember) on GitHub and mirrored into the Sites-managed Git repository for publication. Pushing to GitHub does not automatically deploy the website.
 
 The current owner identity relies on authenticated identity headers injected and sanitised by the Sites dispatch gateway. The runtime secret `LEADERBOARD_OWNER_EMAIL` is set in the existing hosting configuration. It is intentionally NOT included in this export. No user password, access token, cookie or service-access credential is included.
 

@@ -2,6 +2,8 @@
 
 A plain HTML leaderboard, a separate owner-only admin page, and a dependency-free Cloudflare Worker runtime. A small D1 table stores the approved fundraising URLs.
 
+Source: [UCLAIS/Movember](https://github.com/UCLAIS/Movember). Live site: [November Giving leaderboard](https://fundraising-reader-yash.itsyashn.chatgpt.site/). Publish through the existing Sites workflow; pushing to GitHub does not automatically deploy the website.
+
 The leaderboard at `/` is read-only. Manage Teams opens `/admin/login`, which displays a server-verified owner confirmation before linking to the editor at `/admin`. Existing authorised sessions do not require a second password prompt. Both routes check access independently. Anonymous visitors go through platform sign-in; signed-in non-owners receive 404.
 
 The public `/sign-up` guide explains how to create JustGiving and Movember teams, including JustGiving’s individual member pages and shared team total. Committees email their society page and team fundraising link to `president@uclai.co.uk` for manual addition. Both public pages link to the official setup guides and participating teams. The sign-up page renders the approved team links from D1 without fetching platform totals.
