@@ -7,10 +7,10 @@
   --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem; --text-4xl: 2.488rem;
   --text-display: var(--text-4xl); --text-section: var(--text-xl); --text-title: var(--text-lg);
   --color-paper: oklch(98.3% .005 250); --color-paper-2: oklch(95.8% .008 250); --color-paper-3: oklch(92% .012 250);
-  --color-ink: oklch(24% .045 258); --color-ink-2: oklch(33% .055 258); --color-muted: oklch(47% .025 255);
+  --color-ink: #361a54; --color-ink-2: color-mix(in oklab, var(--color-ink) 90%, var(--color-paper)); --color-muted: oklch(47% .022 308);
   --color-rule: oklch(81% .014 250); --color-rule-2: oklch(56% .035 255);
-  --color-accent: oklch(28% .065 258); --color-accent-ink: oklch(98.3% .005 250); --color-accent-deep: oklch(38% .075 258);
-  --color-focus: oklch(45% .13 255); --color-error: oklch(44% .14 24); --color-error-paper: oklch(96% .019 24);
+  --color-accent: var(--color-ink); --color-accent-ink: oklch(98.3% .005 250); --color-accent-deep: color-mix(in oklab, var(--color-ink) 85%, var(--color-paper));
+  --color-focus: var(--color-ink); --color-error: oklch(44% .14 24); --color-error-paper: oklch(96% .019 24);
   --color-disabled: oklch(90% .008 250); --color-success: oklch(37% .06 155);
   --color-clear: transparent;
   --background: var(--color-paper); --surface: var(--color-paper-2); --ink: var(--color-ink);

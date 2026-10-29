@@ -23,3 +23,7 @@ The design uses shared native CSS tokens and templates across the public pages, 
 The public Pages site now uses the user-selected off-white and ink navy palette, with red reserved for the relegation state. Hallmark’s Sport theme informed the ruled results-sheet treatment; its volt accent and catalog fonts were replaced by the explicit palette choice and the project’s existing licensed faces. Overpass carries the interface, and Anton remains in the campaign wordmark. The display is consistently light rather than following system dark mode.
 
 The existing campus photograph and illustrative sign-up image remain, rendered in greyscale through CSS. No new photographs, logos, figures or fundraising claims were introduced. The shared source styles are `tokens.css`, `base.css` and `public.css` and are embedded into the Worker by `scripts/sync-styles.mjs`. Public layout changes deploy through GitHub Pages; the existing Sites backend and owner sign-in are retained.
+
+## UCL dark purple update, 29 October 2026
+
+At the user’s request, the ink and primary controls use UCL’s current dark purple, `#361a54` (RGB 54, 26, 84), verified against the [official colour guidance](https://www.ucl.ac.uk/brand-and-experience/brand/visual-guidelines/colour). The existing off-white surfaces and red relegation state remain. Hover colours derive from the dark-purple token.

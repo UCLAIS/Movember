@@ -1,6 +1,6 @@
-/* Hallmark · shape: app screen · genre: editorial · theme: Sport (deal 1/3, adapted to the user-selected off-white and ink navy palette; retained project faces) · redesign: full
+/* Hallmark · shape: app screen · genre: editorial · theme: Sport (deal 1/3, adapted to the user-selected off-white and UCL dark purple palette; retained project faces) · redesign: full
  * nav: existing two-destination masthead · footer: compact campaign colophon · signature: live society standings sheet · states: loading, empty, error, full
- * axes: light/grotesk/navy · posture: restrained · contrast: pass · v2.0.0 */
+ * axes: light/grotesk/UCL-dark-purple · posture: restrained · contrast: pass · v2.0.0 */
 /* Hallmark · finish-review: subagent · 2 findings · 2 resolved · gap: none */
 /* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · weakest: S, a generic table; kept the society names, member ranking and red relegation band as the defining objects */
 @import url("./tokens.css");
