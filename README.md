@@ -26,7 +26,7 @@ Each page load reads the approved list from the server and makes new upstream re
 
 The leaderboard is intended for public viewing. Administration requires platform-authenticated identity headers and a case-insensitive match against `LEADERBOARD_OWNER_EMAIL`, configured as a runtime secret. The dispatch platform owns sign-in and sanitizes authenticated identity headers; application code never accepts an owner identity from request JSON, query strings or browser storage. Non-owners receive 404 for `/admin`. Missing owner configuration fails closed. Every PUT checks identity, same-origin requests, JSON type, payload bounds and supported URLs before writing. Revision checks prevent another tab from overwriting a newer list. All SQL values use bound parameters. Totals can be requested only for approved URLs.
 
-Root HTML contains no editing form. User and platform text is inserted with textContent. Both HTML pages use hash-based script/style CSP and deny embedding. Service-access tokens do not grant admin identity. These controls are tested protections, not a guarantee of complete security.
+Root HTML contains no editing form. User and platform text is inserted with textContent. Sites responses use hash-based script/style CSP and deny embedding. Pages uses a hash-based CSP meta policy for its public HTML; Pages cannot set the response header needed to deny framing. The authenticated editor stays on Sites. Service-access tokens do not grant admin identity. These controls are tested protections, not a guarantee of complete security.
 
 ## Run
 
