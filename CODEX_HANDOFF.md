@@ -32,13 +32,13 @@ Local preview deliberately does not allow administrator sign-in or trust identit
 
 ## Important deployment boundary
 
-Production currently runs on Sites using a Cloudflare Worker and a D1 database. `.openai/hosting.json` identifies the existing Site and declares its logical `DB` binding. The source history is stored in [UCLAIS/Movember](https://github.com/UCLAIS/Movember) on GitHub and mirrored into the Sites-managed Git repository for publication. Pushing to GitHub now deploys the public frontend through Pages; backend publication still uses Sites.
+Production currently runs on Sites using a Cloudflare Worker and a D1 database. `.openai/hosting.json` identifies the existing Site and declares its logical `DB` binding. The source history is stored in [UCLAIS/Movember](https://github.com/UCLAIS/Movember) on GitHub and mirrored into the Sites-managed Git repository for publication. Pushing to GitHub now deploys the public frontend through Pages from the generated `docs/` folder; backend publication still uses Sites.
 
 The current owner identity relies on authenticated identity headers injected and sanitised by the Sites dispatch gateway. The runtime secret `LEADERBOARD_OWNER_EMAIL` is set in the existing hosting configuration. It is intentionally NOT included in this export. No user password, access token, cookie or service-access credential is included.
 
 ### GitHub Pages frontend, 29 October 2026
 
-The public frontend now builds with `npm run build:pages` and deploys through `.github/workflows/pages.yml` on pushes to `main`. Its custom domain is `https://novembergiving.uclai.co.uk/`. The user made the repository public and connected the domain before this deployment work. Preserve the CNAME and HTTPS settings.
+The public frontend builds with `npm run build:pages` into the tracked `docs/` directory. GitHub Pages uses built-in branch deployment from `main/docs`. Run tests and regenerate/commit `docs/` before pushing frontend changes. The CLI token and connected GitHub app cannot create workflow files, so this route avoids needing broader permissions. Its custom domain is `https://novembergiving.uclai.co.uk/`. The user made the repository public and connected the domain before this deployment work. Preserve the CNAME and HTTPS settings.
 
 Sites remains the backend for D1, live platform reads and authenticated administration. The Worker allows credential-free CORS GET reads only from `PUBLIC_SITE_ORIGIN`, for `/api/teams` and `/api/totals`. It does not permit cross-origin writes or expose the editor through Pages. The static export links owner administration to Sites. Both public pages read the current team list at load time, so manual additions do not require a new Pages build. Future backend changes still require publication through Sites; a GitHub push updates only the public frontend.
 

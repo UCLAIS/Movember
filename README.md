@@ -2,17 +2,17 @@
 
 A plain HTML leaderboard, a separate owner-only admin page, and a dependency-free Cloudflare Worker runtime. A small D1 table stores the approved fundraising URLs.
 
-Source: [UCLAIS/Movember](https://github.com/UCLAIS/Movember). Public site: [November Giving leaderboard](https://novembergiving.uclai.co.uk/). GitHub Actions tests and deploys the public pages on every push to `main`. The existing [Sites backend](https://fundraising-reader-yash.itsyashn.chatgpt.site/) continues to serve live totals, the team database and owner administration.
+Source: [UCLAIS/Movember](https://github.com/UCLAIS/Movember). Public site: [November Giving leaderboard](https://novembergiving.uclai.co.uk/). GitHub Pages publishes the generated public pages from `main/docs` after a push. The existing [Sites backend](https://fundraising-reader-yash.itsyashn.chatgpt.site/) continues to serve live totals, the team database and owner administration.
 
 ## GitHub Pages deployment
 
-Run `npm run build:pages` to generate `_site/`. Only the public leaderboard, sign-up guide, CNAME and owner sign-in redirect are exported. The build reuses the Worker’s templates, adds a hash-based CSP meta policy and points public reads at the Sites API. It does not export the Worker, database, environment files or owner editor.
+Run `node --test` and `npm run build:pages` before pushing frontend changes. The build generates the tracked `docs/` directory from the public Worker templates. It exports only the public leaderboard, sign-up guide, CNAME and owner sign-in redirect, adds a hash-based CSP meta policy and points public reads at the Sites API. It does not export the Worker, database, environment files or owner editor.
 
-`.github/workflows/pages.yml` runs the tests, builds `_site/` and publishes it through the `github-pages` environment. Pages uses GitHub Actions as its publishing source, with HTTPS enforced for `novembergiving.uclai.co.uk`. No deployment secrets are required. `CNAME`, `PUBLIC_SITE_ORIGIN` and the domain configured in repository settings must agree.
+Pages uses built-in branch deployment from `main`, folder `/docs`, with HTTPS enforced for `novembergiving.uclai.co.uk`. `docs/.nojekyll` keeps the output as plain HTML. No custom workflow permissions or deployment secrets are required. `CNAME`, `PUBLIC_SITE_ORIGIN` and the domain configured in repository settings must agree. Commit the regenerated `docs/` files with each frontend change; a source-only edit does not rebuild these pages on GitHub.
 
 Both public pages request the current team list on page load; the leaderboard also fetches current fundraising totals. Reads omit browser credentials. The API permits cross-origin GET responses only for the exact public domain. Writes remain same-origin and owner-only on Sites. The public “Manage teams” link opens the existing Sites sign-in, where identity is verified. GitHub Pages cannot run the Worker or authenticate the owner.
 
-Public copy/layout changes deploy from GitHub. Changes to API behaviour, fundraising parsers, authentication or CORS also need a Sites backend deployment through its existing source workflow. If the domain changes, update the Worker’s allowed origin and publish that backend before deploying the new frontend. Existing Sites audience and owner secret must be preserved.
+Built public copy/layout changes deploy from GitHub. Changes to API behaviour, fundraising parsers, authentication or CORS also need a Sites backend deployment through its existing source workflow. If the domain changes, update the Worker’s allowed origin and publish that backend before deploying the new frontend. Existing Sites audience and owner secret must be preserved.
 
 The leaderboard at `/` is read-only. Manage Teams opens `/admin/login`, which displays a server-verified owner confirmation before linking to the editor at `/admin`. Existing authorised sessions do not require a second password prompt. Both routes check access independently. Anonymous visitors go through platform sign-in; signed-in non-owners receive 404.
 

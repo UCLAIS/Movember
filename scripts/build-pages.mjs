@@ -6,7 +6,7 @@ import {page, signupPage, PUBLIC_SITE_ORIGIN, BACKEND_ORIGIN} from '../worker/in
 import {loadParticipatingTeams} from '../client/participating-teams.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const output = resolve(root, '_site');
+const output = resolve(root, 'docs');
 
 export function pagesDocument(template, {signup = false} = {}) {
   let html = template;
