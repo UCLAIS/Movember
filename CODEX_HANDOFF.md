@@ -86,3 +86,5 @@ The authored CSS lives in `tokens.css`, `base.css` and `public.css`. Run `npm ru
 Hallmark app-scope render checks passed with 0 Floor failures, 0 Reflex findings and 0 warnings, including populated, empty and failed sample states and the sign-up page. The before/after wiring check kept 11/11 links, 6/6 script hooks, 3/3 headings and 1/1 figures. A fresh-context review’s two findings were resolved: persistent society-link underlines and non-wrapping footer guides at narrow widths. Test fixtures and screenshots are local only; production team data was not edited.
 
 The user subsequently changed the ink to UCL’s dark purple, `#361a54`, verified against current UCL colour guidance on 29 October 2026. This replaces navy for text and primary controls. Keep the off-white surfaces and red relegation tint.
+
+At the user’s request, the two introductory links beside the leaderboard heading (How to sign up and Society standings) were removed. Sign-up remains available through the main navigation and footer.

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-GB"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ZtXo3SSCe0vWF8uxGPVqYF/9ID8IvPhAYg4rta7PEN4='; style-src 'sha256-NyRCAvcQil5Df6sNVzgfg1H/2KX29RsHiE6uLPxAaxY='; connect-src https://fundraising-reader-yash.itsyashn.chatgpt.site; img-src 'self' data:; font-src data:; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><link rel="canonical" href="https://novembergiving.uclai.co.uk/"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="UCL societies are fundraising this November. See how much each team has raised and find out how to join."><title>UCL Societies’ November Giving Leaderboard</title>
+<html lang="en-GB"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ZtXo3SSCe0vWF8uxGPVqYF/9ID8IvPhAYg4rta7PEN4='; style-src 'sha256-qjs2t+84MtT6dbCYXE5jD/BlAtE42WfIgspAMd8tpUw='; connect-src https://fundraising-reader-yash.itsyashn.chatgpt.site; img-src 'self' data:; font-src data:; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><link rel="canonical" href="https://novembergiving.uclai.co.uk/"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="UCL societies are fundraising this November. See how much each team has raised and find out how to join."><title>UCL Societies’ November Giving Leaderboard</title>
 <style>
 
 /* Hallmark · shape: app screen · genre: editorial · theme: Sport (deal 1/3, adapted to the user-selected off-white and UCL dark purple palette; retained project faces) · redesign: full
@@ -269,8 +269,7 @@ main { padding-block: var(--space-xl) var(--space-2xl); }
 .campaign { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-xl); align-items: center; margin-bottom: var(--space-xl); }
 .campaign-copy p { color: var(--muted); max-width: 65ch; margin-top: var(--space-md); }
 .campaign-copy h1 { max-width: 26ch; }
-.leaderboard-heading { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
-.leaderboard-heading .hero-actions { flex-direction: column; align-items: flex-end; gap: var(--space-sm); }
+.leaderboard-heading { grid-template-columns: minmax(0, 1fr); align-items: end; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-lg); }
 .action-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--space-xs) var(--space-lg); border: var(--rule-hair) solid var(--accent); border-radius: var(--radius-control); background: var(--accent); color: var(--accent-on); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; text-decoration: none; }
 .text-link { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--text-sm); font-weight: 600; }
@@ -397,7 +396,6 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
 @media (max-width: 60rem) {
   .campaign { gap: var(--space-lg); }
   .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
-  .leaderboard-heading .hero-actions { flex-direction: row; align-items: center; }
   col.rank-column { width: 56px; }
   col.raised-column { width: 170px; }
   col.members-column { width: 140px; }
@@ -455,7 +453,7 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
 
 </style></head><body>
 <a class="skip-link" href="#main-content">Skip to content</a><header class="masthead"><div class="masthead-inner"><a class="brand" href="/">UCL Societies</a><nav class="site-nav" aria-label="Main navigation"><a href="/" aria-current="page">Leaderboard</a><a href="/sign-up">How to sign up</a></nav></div></header>
-<main id="main-content"><header class="campaign leaderboard-heading"><div class="campaign-copy"><h1>November Giving Leaderboard</h1><p>This November, we’re seeing which UCL society can raise the most for charity. Set up a team, get your members involved and follow the totals here.</p></div><div class="hero-actions"><a class="action-link" href="/sign-up">How to sign up</a><a class="text-link" href="#standings-heading">Society standings</a></div></header>
+<main id="main-content"><header class="campaign leaderboard-heading"><div class="campaign-copy"><h1>November Giving Leaderboard</h1><p>This November, we’re seeing which UCL society can raise the most for charity. Set up a team, get your members involved and follow the totals here.</p></div></header>
 <section class="standings" aria-labelledby="standings-heading"><h2 id="standings-heading">Society standings</h2><p class="section-intro">Click a society’s name to visit its fundraising page or make a donation.</p>
 <p id="errors" class="message" role="alert"></p>
 <div class="toolbar"><div class="sorts" role="group" aria-label="Rank teams by"><button type="button" id="sort-raised" aria-pressed="true">Money raised</button><button type="button" id="sort-members" aria-pressed="false">Team members</button></div><p id="summary" class="summary" role="status" aria-live="polite">Loading societies…</p></div>
