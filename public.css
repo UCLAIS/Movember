@@ -152,6 +152,10 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
   col.rank-column { width: 56px; }
   col.raised-column { width: 170px; }
 }
+@media (max-width: 48rem) {
+  .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
+  .fundraising-total { border-left: 0; padding-left: 0; }
+}
 @media (max-width: 40rem) {
   .masthead-inner { min-height: 68px; gap: var(--space-sm); }
   .brand { font-size: var(--text-lg); }

@@ -50,7 +50,7 @@ test('static pages reuse the design with exact script hashes and a read-only API
     assert.doesNotMatch(html, /id="team-form"|LEADERBOARD_OWNER_EMAIL|oai-authenticated-user/);
   }
   const root = pagesDocument(page);
-  assert.ok(root.includes('href="' + BACKEND_ORIGIN + '/admin/login"'));
+  assert.ok(root.includes('href="' + PUBLIC_SITE_ORIGIN + '/admin/login"'));
   assert.ok(root.includes('class="admin-link">'));
   const signup = pagesDocument(signupPage, {signup: true});
   assert.ok(signup.includes('id="participating-teams"'));
@@ -97,4 +97,14 @@ test('static sign-up loads current team links once, safely, and reports failures
     globalThis.document = originalDocument;
     globalThis.fetch = originalFetch;
   }
+});
+
+test('public links stay on the custom domain, with direct fundraising destinations', () => {
+ for(const html of [page, signupPage, pagesDocument(page), pagesDocument(signupPage,{signup:true})]){
+  const hrefs=[...html.matchAll(/href="([^"#]+)"/g)].map(x=>x[1]);
+  assert.ok(hrefs.includes(PUBLIC_SITE_ORIGIN+'/'));
+  assert.ok(hrefs.includes(PUBLIC_SITE_ORIGIN+'/sign-up'));
+  assert.ok(hrefs.every(href=>!href.includes('.chatgpt.site')));
+  assert.ok(hrefs.every(href=>!href.startsWith('/')));
+ }
 });

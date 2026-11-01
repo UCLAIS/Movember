@@ -92,3 +92,5 @@ At the user’s request, the two introductory links beside the leaderboard headi
 ## Total raised and money-only standings, 1 November 2026
 
 The public leaderboard has three columns: rank, society and raised. Team-member counts and the ranking switch have been removed. A large Total raised figure sits beside the introduction on desktop and beneath it on phones. It sums only fresh readings in minor units, keeps currencies separate and labels partial coverage. Loading, an empty team list and unavailable totals are distinct states. Adapter member metadata remains backward compatible; authentication, data access and reload-only fetching are unchanged.
+
+Public navigation now uses absolute novembergiving.uclai.co.uk links, including from the older Sites address. Public pages contain no direct links to the chatgpt.site domain. The custom-domain admin sign-in route still redirects to Sites for secure authentication; API reads remain on Sites.

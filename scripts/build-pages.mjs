@@ -12,7 +12,7 @@ const output = resolve(root, 'docs');
 export function pagesDocument(template, {signup = false} = {}) {
   let html = template;
   if (signup) {
-    html = html.replace('<!-- participating-teams -->', '<div id="participating-teams" class="team-links-empty" aria-live="polite" aria-busy="true">Loading society links…</div><noscript><p>Turn on JavaScript to load society links, or <a href="' + BACKEND_ORIGIN + '/sign-up">view the team links here</a>.</p></noscript>');
+    html = html.replace('<!-- participating-teams -->', '<div id="participating-teams" class="team-links-empty" aria-live="polite" aria-busy="true">Loading society links…</div><noscript><p>Turn on JavaScript to load society links, or <a href="mailto:president@uclai.co.uk">email us for the team links</a>.</p></noscript>');
     html = html.replace('</script>', '\n(' + loadParticipatingTeams.toString() + ')(' + JSON.stringify(BACKEND_ORIGIN) + ');\n</script>');
   } else {
     // Keep the normal Worker page same-origin. Only this static export crosses origins.
@@ -20,7 +20,6 @@ export function pagesDocument(template, {signup = false} = {}) {
     html = html.replaceAll("{cache:'no-store'}", "{cache:'no-store',credentials:'omit'}");
     html = html.replace("document.getElementById('admin-link').hidden=!list.canEdit;", '');
     html = html.replace('class="admin-link" hidden', 'class="admin-link"');
-    html = html.replace('href="/admin/login"', 'href="' + BACKEND_ORIGIN + '/admin/login"');
   }
   const hashes = tag => [...html.matchAll(new RegExp('<' + tag + '>([\\s\\S]*?)</' + tag + '>', 'g'))]
     .map(match => "'sha256-" + createHash('sha256').update(match[1]).digest('base64') + "'").join(' ') || "'none'";

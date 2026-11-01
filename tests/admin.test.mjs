@@ -136,7 +136,7 @@ test('public sign-up guide safely lists approved team links and offers email reg
    assert.doesNotMatch(html,/<form|<input/);
   }
   const root=await (await worker.fetch(request('/'),env)).text();
-  assert.match(root,/href="\/sign-up"/);
+  assert.match(root,/href="https:\/\/novembergiving\.uclai\.co\.uk\/sign-up"/);
   for(const html of [root,await (await worker.fetch(request('/sign-up'),env)).text()]){
    assert.match(html,/href="https:\/\/help.justgiving.com\/hc\/en-us\/articles\/360002598077-How-to-create-a-Team-page"/);
    assert.match(html,/Movember%20Workplace%20Fundraising%20Guide%202025%20UK.pdf#page=11/);

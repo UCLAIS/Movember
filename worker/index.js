@@ -406,6 +406,10 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
   col.rank-column { width: 56px; }
   col.raised-column { width: 170px; }
 }
+@media (max-width: 48rem) {
+  .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
+  .fundraising-total { border-left: 0; padding-left: 0; }
+}
 @media (max-width: 40rem) {
   .masthead-inner { min-height: 68px; gap: var(--space-sm); }
   .brand { font-size: var(--text-lg); }
@@ -458,8 +462,8 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
 
 `;
 
-const siteHeader=active=>String.raw`<a class="skip-link" href="#main-content">Skip to content</a><header class="masthead"><div class="masthead-inner"><a class="brand" href="/">UCL Societies</a><nav class="site-nav" aria-label="Main navigation"><a href="/"${active==='leaderboard'?' aria-current="page"':''}>Leaderboard</a><a href="/sign-up"${active==='signup'?' aria-current="page"':''}>How to sign up</a></nav></div></header>`;
-const siteFooter=({campus=false,admin=false}={})=>String.raw`<footer class="site-footer"><div class="footer-inner"><div class="footer-intro"><p class="footer-brand">November Giving</p><p class="footer-note">Fundraising across UCL societies this November.<br>Donate directly through JustGiving or Movember.</p></div><nav class="footer-nav" aria-label="Explore"><p class="footer-nav-title">Take part</p><a href="/">Leaderboard</a><a href="/sign-up">How to sign up</a></nav><nav class="footer-nav" aria-label="Fundraising guides"><p class="footer-nav-title">Team setup guides</p><a href="https://help.justgiving.com/hc/en-us/articles/360002598077-How-to-create-a-Team-page" target="_blank" rel="noopener noreferrer">JustGiving team guide</a><a href="https://uk.movember.com/uploads/files/Fundraising-Resources/Guides%20-%20UK/Movember%20Workplace%20Fundraising%20Guide%202025%20UK.pdf#page=11" target="_blank" rel="noopener noreferrer">Movember team guide (PDF)</a></nav></div><div class="footer-bottom"><p>Organised by UCL AI Society.</p>${campus?'<p>Campus photograph: <a href="https://www.ucl.ac.uk/" target="_blank" rel="noopener noreferrer">UCL</a></p>':''}${admin?'<a href="/admin/login" id="admin-link" class="admin-link" hidden>Manage teams</a>':''}</div></footer>`;
+const siteHeader=active=>String.raw`<a class="skip-link" href="#main-content">Skip to content</a><header class="masthead"><div class="masthead-inner"><a class="brand" href="/">UCL Societies</a><nav class="site-nav" aria-label="Main navigation"><a href="/"${active==='leaderboard'?' aria-current="page"':''}>Leaderboard</a><a href="/sign-up"${active==='signup'?' aria-current="page"':''}>How to sign up</a></nav></div></header>`.replaceAll('href="/', 'href="'+PUBLIC_SITE_ORIGIN+'/');
+const siteFooter=({campus=false,admin=false}={})=>String.raw`<footer class="site-footer"><div class="footer-inner"><div class="footer-intro"><p class="footer-brand">November Giving</p><p class="footer-note">Fundraising across UCL societies this November.<br>Donate directly through JustGiving or Movember.</p></div><nav class="footer-nav" aria-label="Explore"><p class="footer-nav-title">Take part</p><a href="/">Leaderboard</a><a href="/sign-up">How to sign up</a></nav><nav class="footer-nav" aria-label="Fundraising guides"><p class="footer-nav-title">Team setup guides</p><a href="https://help.justgiving.com/hc/en-us/articles/360002598077-How-to-create-a-Team-page" target="_blank" rel="noopener noreferrer">JustGiving team guide</a><a href="https://uk.movember.com/uploads/files/Fundraising-Resources/Guides%20-%20UK/Movember%20Workplace%20Fundraising%20Guide%202025%20UK.pdf#page=11" target="_blank" rel="noopener noreferrer">Movember team guide (PDF)</a></nav></div><div class="footer-bottom"><p>Organised by UCL AI Society.</p>${campus?'<p>Campus photograph: <a href="https://www.ucl.ac.uk/" target="_blank" rel="noopener noreferrer">UCL</a></p>':''}${admin?'<a href="/admin/login" id="admin-link" class="admin-link" hidden>Manage teams</a>':''}</div></footer>`.replaceAll('href="/', 'href="'+PUBLIC_SITE_ORIGIN+'/');
 
 const page = String.raw`<!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="UCL societies are fundraising this November. See how much each team has raised and find out how to join."><title>UCL Societies’ November Giving Leaderboard</title>
@@ -506,7 +510,7 @@ ${siteHeader('leaderboard')}
    }
    tbody.append(tr);
   }
-  if(!rows.length){const tr=document.createElement('tr'),td=cell(tr,listFailed?'The leaderboard is unavailable. Reload the page to try again.':'No societies listed yet.','empty');td.colSpan=3;if(!listFailed){sub(td,'Society fundraising pages will appear here once they’ve been added.','empty-description');const join=document.createElement('a');join.href='/sign-up';join.className='empty-action';join.textContent='How to sign up';td.append(join);}tbody.append(tr);}
+  if(!rows.length){const tr=document.createElement('tr'),td=cell(tr,listFailed?'The leaderboard is unavailable. Reload the page to try again.':'No societies listed yet.','empty');td.colSpan=3;if(!listFailed){sub(td,'Society fundraising pages will appear here once they’ve been added.','empty-description');const join=document.createElement('a');join.href='${PUBLIC_SITE_ORIGIN}/sign-up/';join.className='empty-action';join.textContent='How to sign up';td.append(join);}tbody.append(tr);}
   const aggregate=totalRaised(rows),total=document.getElementById('total-raised');
   total.replaceChildren();total.setAttribute('aria-busy',String(busy));
   if(busy)sub(total,'Loading…','total-value total-placeholder');
@@ -600,11 +604,11 @@ ${publicStyles}
 
 const adminCheckPage=String.raw`<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administrator verified</title><style>
 ${publicStyles}
-</style></head><body>${siteHeader('')}<main id="main-content" class="verification-main"><p class="badge">Owner account verified</p><h1>Administrator access confirmed</h1><p>You’re signed in as the site owner. You can add, edit and remove teams.</p><p>If you’re already signed in, you won’t be asked for your password again.</p><div class="hero-actions"><a class="action-link" href="/admin">Open team manager</a><a class="text-link" href="/">Back to leaderboard</a></div></main>${siteFooter()}</body></html>`;
+</style></head><body>${siteHeader('')}<main id="main-content" class="verification-main"><p class="badge">Owner account verified</p><h1>Administrator access confirmed</h1><p>You’re signed in as the site owner. You can add, edit and remove teams.</p><p>If you’re already signed in, you won’t be asked for your password again.</p><div class="hero-actions"><a class="action-link" href="/admin">Open team manager</a><a class="text-link" href="${PUBLIC_SITE_ORIGIN}/">Back to leaderboard</a></div></main>${siteFooter()}</body></html>`;
 
 const adminPage=String.raw`<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage teams · Fundraising leaderboard</title><style>
 ${publicStyles}
-</style></head><body>${siteHeader('')}<main id="main-content" class="admin-main"><a class="back-link" href="/">Back to leaderboard</a><h1>Manage teams</h1><p class="badge">Owner account verified · authorised to make changes</p><p class="admin-intro">Choose the name shown on the leaderboard, then paste the fundraising page link. Add, edit or remove one team at a time.</p>
+</style></head><body>${siteHeader('')}<main id="main-content" class="admin-main"><a class="back-link" href="${PUBLIC_SITE_ORIGIN}/">Back to leaderboard</a><h1>Manage teams</h1><p class="badge">Owner account verified · authorised to make changes</p><p class="admin-intro">Choose the name shown on the leaderboard, then paste the fundraising page link. Add, edit or remove one team at a time.</p>
 <section class="panel"><h2 id="form-title">Add a team</h2><form id="team-form"><fieldset id="team-fields" disabled><div class="fields"><div><label for="team-name">Team name</label><input id="team-name" maxlength="80" placeholder="e.g. UCL Swimming" autocomplete="off"><p class="hint">Optional. Leave blank to use the fundraising page’s name.</p></div><div><label for="team-url">Fundraising page link</label><input id="team-url" type="url" required placeholder="Paste a Movember or JustGiving link" spellcheck="false" autocomplete="off"><p class="hint">One page per team. Up to 30 teams.</p></div></div><div class="actions"><button id="save" type="submit">Add team</button><button id="cancel" type="button" class="secondary" hidden>Cancel edit</button></div></fieldset></form><p id="message" class="message" role="status" aria-live="polite">Verifying your access and loading teams…</p></section>
 <section class="panel"><div class="saved-header"><h2 id="saved-title">Saved teams</h2><button id="reload" type="button" class="secondary">Reload saved teams</button></div><ul id="teams" class="list" aria-label="Approved teams"></ul></section></main>${siteFooter()}<script>
 (()=>{
@@ -724,7 +728,7 @@ export default {
   if(url.pathname==='/sign-up'||url.pathname==='/sign-up/'){
    let links;
    try{links=signupTeamLinks((await savedTeams(env)).teams);}
-   catch{links='<p class="team-links-empty">Team links are temporarily unavailable. <a href="/">View the leaderboard</a> or reload this page to try again.</p>';}
+   catch{links='<p class="team-links-empty">Team links are temporarily unavailable. <a href="'+PUBLIC_SITE_ORIGIN+'/">View the leaderboard</a> or reload this page to try again.</p>';}
    return htmlResponse(signupPage.replace('<!-- participating-teams -->',links),headers);
   }
   if(url.pathname==='/admin/login'){
