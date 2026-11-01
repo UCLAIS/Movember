@@ -151,13 +151,10 @@ async function readTotal(sourceUrl, platform) {
 }
 
 // Competition ranks: 1, 1, 3. Money is ranked within its own currency.
-// Only explicit team-member counts qualify for the team-size ranking.
-export function rankRows(rows, metric) {
-  const eligible = row => row.status === 'fresh' && row.data && (metric === 'members'
-    ? row.data.peopleLabel === 'Team members' && Number.isSafeInteger(row.data.people)
-    : Number.isSafeInteger(row.data.amountMinor));
-  const value = row => metric === 'members' ? row.data.people : row.data.amountMinor;
-  const group = row => metric === 'members' ? '' : row.data.currency;
+export function rankRows(rows) {
+  const eligible = row => row.status === 'fresh' && row.data && Number.isSafeInteger(row.data.amountMinor);
+  const value = row => row.data.amountMinor;
+  const group = row => row.data.currency;
   const compareGroup = (a,b) => a === b ? 0 : a === 'GBP' ? -1 : b === 'GBP' ? 1 : a.localeCompare(b);
   const ranked = rows.filter(eligible).slice().sort((a,b) => compareGroup(group(a),group(b)) || value(b)-value(a) || a.data.name.localeCompare(b.data.name));
   let previousGroup, previousValue, rank=0, position=0;
@@ -173,6 +170,21 @@ export function rankRows(rows, metric) {
   for(const row of result)bottomRanks.set(group(row),row.rank);
   return result.map(row=>({...row,isBottom:row.rank===bottomRanks.get(group(row))}))
     .concat(rows.filter(row=>!eligible(row)).map(row=>({...row,rank:null,isBottom:false})));
+}
+
+// Add only current readings, keeping currencies separate. Never round an unsafe sum.
+export function totalRaised(rows) {
+  const totals = new Map();
+  let available = 0;
+  for (const row of rows) {
+    const d = row.data;
+    if (row.status !== 'fresh' || !d || !Number.isSafeInteger(d.amountMinor) || d.amountMinor < 0 || !/^[A-Z]{3}$/.test(d.currency)) continue;
+    available++;
+    const previous = totals.has(d.currency) ? totals.get(d.currency) : 0;
+    const amount = previous === null ? null : previous + d.amountMinor;
+    totals.set(d.currency, amount !== null && Number.isSafeInteger(amount) ? amount : null);
+  }
+  return {available, totals: [...totals].sort(([a], [b]) => a === b ? 0 : a === 'GBP' ? -1 : b === 'GBP' ? 1 : a.localeCompare(b)).map(([currency, amountMinor]) => ({currency, amountMinor}))};
 }
 
 // Embedded licensed fonts and the UCL reference photograph avoid third-party visitor requests.
@@ -261,22 +273,25 @@ main { padding-block: var(--space-xl) var(--space-2xl); }
 .campaign { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-xl); align-items: center; margin-bottom: var(--space-xl); }
 .campaign-copy p { color: var(--muted); max-width: 65ch; margin-top: var(--space-md); }
 .campaign-copy h1 { max-width: 26ch; }
-.leaderboard-heading { grid-template-columns: minmax(0, 1fr); align-items: end; }
+.leaderboard-heading { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: start; gap: var(--space-2xl); margin-bottom: var(--space-xl); }
+.fundraising-total { padding-left: var(--space-2lg); border-left: var(--rule-hair) solid var(--line); }
+.fundraising-total h2 { font-size: var(--text-md); font-weight: 600; }
+.total-values { display: flex; flex-wrap: wrap; gap: var(--space-md) var(--space-lg); margin-block: var(--space-xs); }
+.total-figure { display: flex; flex-direction: column; min-width: 0; }
+.total-value { display: block; color: var(--ink); font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.08; letter-spacing: -.045em; overflow-wrap: anywhere; }
+.total-placeholder { font-size: var(--text-2xl); color: var(--muted); min-height: 1.6lh; letter-spacing: -.025em; }
+.total-currency { font-size: var(--text-xs); color: var(--muted); margin-top: var(--space-2xs); }
+.fundraising-total .summary { margin-top: var(--space-sm); max-width: 40ch; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-lg); }
 .action-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--space-xs) var(--space-lg); border: var(--rule-hair) solid var(--accent); border-radius: var(--radius-control); background: var(--accent); color: var(--accent-on); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; text-decoration: none; }
 .text-link { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--text-sm); font-weight: 600; }
 .standings { scroll-margin-top: var(--space-lg); }
 .section-intro { color: var(--muted); font-size: var(--text-sm); line-height: 1.65; max-width: 65ch; margin-top: var(--space-xs); margin-bottom: var(--space-lg); }
-.toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-lg); margin-block: var(--space-lg) 0; }
-.sorts { display: flex; gap: var(--space-lg); }
-.sorts button { border: 0; border-bottom: var(--rule-bar) solid var(--color-clear); background: var(--color-clear); color: var(--muted); padding: var(--space-sm) 0; min-height: 44px; font-size: var(--text-sm); font-weight: 600; white-space: nowrap; }
-.sorts button[aria-pressed=true] { border-bottom-color: var(--ink); color: var(--ink); }
 .summary { color: var(--muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
 .table-wrap { border-top: var(--rule-bar) solid var(--ink); border-bottom: var(--rule-hair) solid var(--line); }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; }
 col.rank-column { width: 72px; }
 col.raised-column { width: 200px; }
-col.members-column { width: 170px; }
 th { padding: var(--space-sm) var(--space-md); background: var(--surface); color: var(--muted); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
 td { padding: var(--space-lg) var(--space-md); border-top: var(--rule-hair) solid var(--line); vertical-align: top; }
 .numeric { text-align: right; font-variant-numeric: tabular-nums; }
@@ -382,15 +397,14 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
   a.team-name:hover { text-decoration-color: var(--ink); }
   .site-nav a:hover { color: var(--ink); }
   .action-link:hover, .admin-main button:not(.secondary):not(.remove):hover { background: var(--accent-hover); color: var(--accent-on); }
-  .sorts button:hover, .platform-tabs button:hover { color: var(--ink); }
+  .platform-tabs button:hover { color: var(--ink); }
   input:hover { background: var(--surface); }
 }
 @media (max-width: 60rem) {
   .campaign { gap: var(--space-lg); }
-  .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
+  .leaderboard-heading { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2lg); }
   col.rank-column { width: 56px; }
   col.raised-column { width: 170px; }
-  col.members-column { width: 140px; }
 }
 @media (max-width: 40rem) {
   .masthead-inner { min-height: 68px; gap: var(--space-sm); }
@@ -400,24 +414,24 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
   main { padding-block: var(--space-2lg) var(--space-xl); }
   .campaign { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); margin-bottom: var(--space-2lg); }
   .campaign-copy p { max-width: 65ch; }
+  .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
+  .fundraising-total { border-left: 0; padding-left: 0; }
+  .total-value { font-size: 3rem; }
+  .total-placeholder { font-size: var(--text-2xl); }
   .hero-actions { gap: var(--space-md); }
   .section-intro { font-size: var(--text-md); }
-  .toolbar { align-items: flex-start; flex-direction: column; gap: var(--space-sm); }
-  .sorts { gap: var(--space-lg); }
   .summary { margin-bottom: var(--space-sm); }
   table, tbody { display: block; width: 100%; }
   thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  tbody tr { display: grid; grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-md) var(--space-sm); padding: var(--space-lg) var(--space-sm); border-top: var(--rule-hair) solid var(--line); }
+  tbody tr { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: var(--space-md) var(--space-sm); padding: var(--space-lg) var(--space-sm); border-top: var(--rule-hair) solid var(--line); }
   tbody tr:first-child { border-top: 0; }
   td { border: 0; padding: 0; min-width: 0; }
   .rank { grid-row: 1 / 3; grid-column: 1; }
   td:nth-child(2) { grid-column: 2 / -1; }
-  td:nth-child(3) { grid-column: 2; }
-  td:nth-child(4) { grid-column: 3; }
+  td:nth-child(3) { grid-column: 2 / -1; }
   .numeric { text-align: left; }
   .numeric::before { display: block; margin-bottom: var(--space-2xs); color: var(--muted); font-size: var(--text-xs); }
   td:nth-child(3)::before { content: "Raised"; }
-  td:nth-child(4)::before { content: "Team members"; }
   .value { font-size: var(--text-xl); }
   .amount-long { font-size: var(--text-lg); }
   .amount-very-long { font-size: var(--text-md); }
@@ -453,27 +467,27 @@ const page = String.raw`<!doctype html>
 ${publicStyles}
 </style></head><body>
 ${siteHeader('leaderboard')}
-<main id="main-content"><header class="campaign leaderboard-heading"><div class="campaign-copy"><h1>November Giving Leaderboard</h1><p>This November, we’re seeing which UCL society can raise the most for charity. Set up a team, get your members involved and follow the totals here.</p></div></header>
+<main id="main-content"><header class="campaign leaderboard-heading"><div class="campaign-copy"><h1>November Giving Leaderboard</h1><p>This November, we’re seeing which UCL society can raise the most for charity. Set up a team, get your members involved and follow the totals here.</p></div><section class="fundraising-total" aria-labelledby="total-heading"><h2 id="total-heading">Total raised</h2><div id="total-raised" class="total-values" aria-busy="true"><span class="total-value total-placeholder">Loading…</span></div><p id="summary" class="summary" role="status" aria-live="polite">Loading societies…</p></section></header>
 <section class="standings" aria-labelledby="standings-heading"><h2 id="standings-heading">Society standings</h2><p class="section-intro">Click a society’s name to visit its fundraising page or make a donation.</p>
 <p id="errors" class="message" role="alert"></p>
-<div class="toolbar"><div class="sorts" role="group" aria-label="Rank teams by"><button type="button" id="sort-raised" aria-pressed="true">Money raised</button><button type="button" id="sort-members" aria-pressed="false">Team members</button></div><p id="summary" class="summary" role="status" aria-live="polite">Loading societies…</p></div>
-<div class="table-wrap"><table><caption>Society fundraising rankings. Equal values share a rank.</caption><colgroup><col class="rank-column"><col><col class="raised-column"><col class="members-column"></colgroup><thead><tr><th scope="col">Rank</th><th scope="col">Society</th><th scope="col" class="numeric">Raised</th><th scope="col" class="numeric">Team members</th></tr></thead><tbody id="rows" aria-busy="true"><tr><td colspan="4" class="empty">Loading the leaderboard…</td></tr></tbody></table></div><p id="ranking-note" class="ranking-note"></p>
-<div class="standings-notes"><p>Reload the page to update totals.</p><details class="ranking-details"><summary>How the rankings work</summary><p>Money raised decides the standings. Ties share a rank, and different currencies are ranked separately. You can also compare team sizes where member counts are available. JustGiving totals exclude Gift Aid. If a total cannot be updated, it is left out of the rankings. New donations appear when JustGiving or Movember updates the team page.</p></details></div></section>
+<div class="table-wrap"><table><caption>Society fundraising rankings. Equal values share a rank.</caption><colgroup><col class="rank-column"><col><col class="raised-column"></colgroup><thead><tr><th scope="col">Rank</th><th scope="col">Society</th><th scope="col" class="numeric">Raised</th></tr></thead><tbody id="rows" aria-busy="true"><tr><td colspan="3" class="empty">Loading the leaderboard…</td></tr></tbody></table></div><p id="ranking-note" class="ranking-note"></p>
+<div class="standings-notes"><p>Reload the page to update totals.</p><details class="ranking-details"><summary>How the rankings work</summary><p>Money raised decides the standings. Ties share a rank, and different currencies are ranked separately. JustGiving totals exclude Gift Aid. If a total cannot be updated, it is left out of the rankings. New donations appear when JustGiving or Movember updates the team page.</p></details></div></section>
 <section class="campaign-intro" aria-labelledby="giving-heading"><div class="giving-copy"><h2 id="giving-heading">Why November?</h2><p>November is a month for giving, from Thanksgiving in the US to charity campaigns around the world. We’re inviting UCL societies to join in and raise money for the charities they choose, through <a href="https://movember.com/about-us" target="_blank" rel="noopener noreferrer">Movember</a> or JustGiving. Everyone is welcome.</p><p class="competition-note"><strong>The committee of the society that raises the least</strong> will have to do a forfeit :)</p></div><figure class="campaign-photo"><img src="${embeddedDesign.portico}" alt="UCL's Portico illuminated for its bicentenary" width="1536" height="750" decoding="async" fetchpriority="high"></figure></section>
 </main>${siteFooter({campus:true,admin:true})}
 <script>
 (() => {
  ${canonicalUrl.toString()}
  ${rankRows.toString()}
+ ${totalRaised.toString()}
  const tbody=document.getElementById('rows'),summary=document.getElementById('summary'),errors=document.getElementById('errors');
- let metric='raised',rows=[],busy=false,listFailed=false;
+ let rows=[],busy=false,listFailed=false;
  const money=d=>new Intl.NumberFormat('en-GB',{style:'currency',currency:d.currency,maximumFractionDigits:d.amountMinor%100?2:0}).format(d.amountMinor/100);
  function platformOf(value){return new URL(value).hostname==='uk.movember.com'?'movember':'justgiving';}
  function cell(tr,value,className){const td=document.createElement('td');if(className)td.className=className;if(value!==undefined)td.textContent=value;tr.append(td);return td;}
  function sub(parent,value,className='sub'){const el=document.createElement('span');el.className=className;el.textContent=value;parent.append(el);return el;}
  function render(){
   tbody.replaceChildren();tbody.setAttribute('aria-busy',String(busy));
-  const ordered=rankRows(rows,metric);
+  const ordered=rankRows(rows);
   for(const row of ordered){
    const d=row.data,tr=document.createElement('tr'),relegated=!busy&&row.isBottom;tr.className=relegated?'relegation':row.status!=='fresh'?'noncurrent':row.rank===1?'leader':'';
    const rank=cell(tr,busy?'':row.rank===null?'-':String(row.rank),'rank');if(busy||row.rank===null)rank.setAttribute('aria-label','Not ranked');
@@ -482,25 +496,30 @@ ${siteHeader('leaderboard')}
    if(relegated)sub(team,'Relegation zone','relegation-label');
    if(row.status==='stale')sub(team,'Previous reading. Not ranked.','status-note');
    if(row.error)sub(team,row.error,'status-note');
-   const raised=cell(tr,undefined,'numeric'),members=cell(tr,undefined,'numeric');
+   const raised=cell(tr,undefined,'numeric');
    if(row.status==='loading'&&!d){
     sub(raised,'','value skeleton').setAttribute('aria-label','Loading amount');
-    sub(members,'','value skeleton').setAttribute('aria-label','Loading team members');
    }else{
     const amount=d?money(d):'N/A';
     sub(raised,amount,'value amount'+(amount.length>14?' amount-extra-long':amount.length>11?' amount-very-long':amount.length>8?' amount-long':''));
     if(d&&d.giftAidMinor!==null)sub(raised,'+ '+money({...d,amountMinor:d.giftAidMinor})+' Gift Aid');
-    sub(members,d&&d.peopleLabel==='Team members'&&d.people!==null?new Intl.NumberFormat('en-GB').format(d.people):'N/A','value');
-    if(d&&d.peopleLabel!=='Team members')sub(members,d.people===null?'Not published':new Intl.NumberFormat('en-GB').format(d.people)+' '+d.peopleLabel.toLowerCase());
-    if(d&&d.peopleLabel==='Team members'&&d.people===null)sub(members,'Not published');
    }
    tbody.append(tr);
   }
-  if(!rows.length){const tr=document.createElement('tr'),td=cell(tr,listFailed?'The leaderboard is unavailable. Reload the page to try again.':'No societies listed yet.','empty');td.colSpan=4;if(!listFailed){sub(td,'Society fundraising pages will appear here once they’ve been added.','empty-description');const join=document.createElement('a');join.href='/sign-up';join.className='empty-action';join.textContent='How to sign up';td.append(join);}tbody.append(tr);}
-  const fresh=rows.filter(x=>x.status==='fresh').length;
-  summary.textContent=busy?'Loading totals… '+rows.filter(x=>x.status!=='loading').length+' of '+rows.length:listFailed?'Could not load societies.':rows.length+' '+(rows.length===1?'society':'societies')+' taking part'+(fresh<rows.length?' ('+fresh+' available)':'');
-  const currencies=[...new Set(rows.filter(x=>x.status==='fresh').map(x=>x.data.currency))];
-  document.getElementById('ranking-note').textContent=metric==='raised'&&currencies.length>1?'Different currencies are ranked separately.':metric==='members'?'Only published team-member counts receive a team-size rank.':'';
+  if(!rows.length){const tr=document.createElement('tr'),td=cell(tr,listFailed?'The leaderboard is unavailable. Reload the page to try again.':'No societies listed yet.','empty');td.colSpan=3;if(!listFailed){sub(td,'Society fundraising pages will appear here once they’ve been added.','empty-description');const join=document.createElement('a');join.href='/sign-up';join.className='empty-action';join.textContent='How to sign up';td.append(join);}tbody.append(tr);}
+  const aggregate=totalRaised(rows),total=document.getElementById('total-raised');
+  total.replaceChildren();total.setAttribute('aria-busy',String(busy));
+  if(busy)sub(total,'Loading…','total-value total-placeholder');
+  else if(listFailed||rows.length&&!aggregate.available)sub(total,'Unavailable','total-value total-placeholder');
+  else if(!rows.length)sub(total,money({currency:'GBP',amountMinor:0}),'total-value');
+  else for(const amount of aggregate.totals){
+   const figure=sub(total,'','total-figure');
+   sub(figure,amount.amountMinor===null?'Unavailable':money(amount),'total-value'+(amount.amountMinor===null?' total-placeholder':''));
+   if(aggregate.totals.length>1)sub(figure,amount.currency,'total-currency');
+  }
+  const overflow=aggregate.totals.some(x=>x.amountMinor===null);
+  summary.textContent=busy?'Loading totals… '+rows.filter(x=>x.status!=='loading').length+' of '+rows.length:listFailed?'Could not load societies.':!rows.length?'No societies listed yet.':!aggregate.available?'No current totals available. Reload to try again.':overflow?'A combined total could not be calculated. See individual totals below.':aggregate.available<rows.length?'From '+aggregate.available+' of '+rows.length+' societies. '+(rows.length-aggregate.available)+' '+(rows.length-aggregate.available===1?'total unavailable.':'totals unavailable.'):'Across '+rows.length+' '+(rows.length===1?'society.':'societies.');
+  document.getElementById('ranking-note').textContent=aggregate.totals.length>1?'Different currencies are shown and ranked separately.':'';
  }
  async function loadLeaderboard(){
   busy=true;errors.textContent='';
@@ -529,7 +548,6 @@ ${siteHeader('leaderboard')}
   try{await Promise.all(Array.from({length:Math.min(4,rows.length)},next));}
   finally{busy=false;render();}
  }
- for(const [id,value] of [['sort-raised','raised'],['sort-members','members']])document.getElementById(id).addEventListener('click',()=>{metric=value;document.getElementById('sort-raised').setAttribute('aria-pressed',String(metric==='raised'));document.getElementById('sort-members').setAttribute('aria-pressed',String(metric==='members'));render();});
  loadLeaderboard();
 })();
 </script></body></html>

@@ -88,3 +88,7 @@ Hallmark app-scope render checks passed with 0 Floor failures, 0 Reflex findings
 The user subsequently changed the ink to UCL’s dark purple, `#361a54`, verified against current UCL colour guidance on 29 October 2026. This replaces navy for text and primary controls. Keep the off-white surfaces and red relegation tint.
 
 At the user’s request, the two introductory links beside the leaderboard heading (How to sign up and Society standings) were removed. Sign-up remains available through the main navigation and footer.
+
+## Total raised and money-only standings, 1 November 2026
+
+The public leaderboard has three columns: rank, society and raised. Team-member counts and the ranking switch have been removed. A large Total raised figure sits beside the introduction on desktop and beneath it on phones. It sums only fresh readings in minor units, keeps currencies separate and labels partial coverage. Loading, an empty team list and unavailable totals are distinct states. Adapter member metadata remains backward compatible; authentication, data access and reload-only fetching are unchanged.

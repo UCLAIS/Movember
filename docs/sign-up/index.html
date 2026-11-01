@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-GB"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-RVPjJa2GnPthAWkj9EygGxc4VSym1g8FD1F9pVyDviw='; style-src 'sha256-qjs2t+84MtT6dbCYXE5jD/BlAtE42WfIgspAMd8tpUw='; connect-src https://fundraising-reader-yash.itsyashn.chatgpt.site; img-src 'self' data:; font-src data:; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><link rel="canonical" href="https://novembergiving.uclai.co.uk/sign-up/"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Join UCL societies for November Giving. Create a JustGiving or Movember team, then send us your society page and fundraising team link."><title>How to sign up · UCL November Giving</title><style>
+<html lang="en-GB"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-RVPjJa2GnPthAWkj9EygGxc4VSym1g8FD1F9pVyDviw='; style-src 'sha256-5BR+x4NanBHLIcdE+p+tbJPTrRPd3iMJ1zLKkWfHkqs='; connect-src https://fundraising-reader-yash.itsyashn.chatgpt.site; img-src 'self' data:; font-src data:; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><link rel="canonical" href="https://novembergiving.uclai.co.uk/sign-up/"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Join UCL societies for November Giving. Create a JustGiving or Movember team, then send us your society page and fundraising team link."><title>How to sign up · UCL November Giving</title><style>
 
 /* Hallmark · shape: app screen · genre: editorial · theme: Sport (deal 1/3, adapted to the user-selected off-white and UCL dark purple palette; retained project faces) · redesign: full
  * nav: existing two-destination masthead · footer: compact campaign colophon · signature: live society standings sheet · states: loading, empty, error, full
@@ -268,22 +268,25 @@ main { padding-block: var(--space-xl) var(--space-2xl); }
 .campaign { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-xl); align-items: center; margin-bottom: var(--space-xl); }
 .campaign-copy p { color: var(--muted); max-width: 65ch; margin-top: var(--space-md); }
 .campaign-copy h1 { max-width: 26ch; }
-.leaderboard-heading { grid-template-columns: minmax(0, 1fr); align-items: end; }
+.leaderboard-heading { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: start; gap: var(--space-2xl); margin-bottom: var(--space-xl); }
+.fundraising-total { padding-left: var(--space-2lg); border-left: var(--rule-hair) solid var(--line); }
+.fundraising-total h2 { font-size: var(--text-md); font-weight: 600; }
+.total-values { display: flex; flex-wrap: wrap; gap: var(--space-md) var(--space-lg); margin-block: var(--space-xs); }
+.total-figure { display: flex; flex-direction: column; min-width: 0; }
+.total-value { display: block; color: var(--ink); font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.08; letter-spacing: -.045em; overflow-wrap: anywhere; }
+.total-placeholder { font-size: var(--text-2xl); color: var(--muted); min-height: 1.6lh; letter-spacing: -.025em; }
+.total-currency { font-size: var(--text-xs); color: var(--muted); margin-top: var(--space-2xs); }
+.fundraising-total .summary { margin-top: var(--space-sm); max-width: 40ch; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-lg); }
 .action-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--space-xs) var(--space-lg); border: var(--rule-hair) solid var(--accent); border-radius: var(--radius-control); background: var(--accent); color: var(--accent-on); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; text-decoration: none; }
 .text-link { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--text-sm); font-weight: 600; }
 .standings { scroll-margin-top: var(--space-lg); }
 .section-intro { color: var(--muted); font-size: var(--text-sm); line-height: 1.65; max-width: 65ch; margin-top: var(--space-xs); margin-bottom: var(--space-lg); }
-.toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-lg); margin-block: var(--space-lg) 0; }
-.sorts { display: flex; gap: var(--space-lg); }
-.sorts button { border: 0; border-bottom: var(--rule-bar) solid var(--color-clear); background: var(--color-clear); color: var(--muted); padding: var(--space-sm) 0; min-height: 44px; font-size: var(--text-sm); font-weight: 600; white-space: nowrap; }
-.sorts button[aria-pressed=true] { border-bottom-color: var(--ink); color: var(--ink); }
 .summary { color: var(--muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
 .table-wrap { border-top: var(--rule-bar) solid var(--ink); border-bottom: var(--rule-hair) solid var(--line); }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; }
 col.rank-column { width: 72px; }
 col.raised-column { width: 200px; }
-col.members-column { width: 170px; }
 th { padding: var(--space-sm) var(--space-md); background: var(--surface); color: var(--muted); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
 td { padding: var(--space-lg) var(--space-md); border-top: var(--rule-hair) solid var(--line); vertical-align: top; }
 .numeric { text-align: right; font-variant-numeric: tabular-nums; }
@@ -389,15 +392,14 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
   a.team-name:hover { text-decoration-color: var(--ink); }
   .site-nav a:hover { color: var(--ink); }
   .action-link:hover, .admin-main button:not(.secondary):not(.remove):hover { background: var(--accent-hover); color: var(--accent-on); }
-  .sorts button:hover, .platform-tabs button:hover { color: var(--ink); }
+  .platform-tabs button:hover { color: var(--ink); }
   input:hover { background: var(--surface); }
 }
 @media (max-width: 60rem) {
   .campaign { gap: var(--space-lg); }
-  .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
+  .leaderboard-heading { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2lg); }
   col.rank-column { width: 56px; }
   col.raised-column { width: 170px; }
-  col.members-column { width: 140px; }
 }
 @media (max-width: 40rem) {
   .masthead-inner { min-height: 68px; gap: var(--space-sm); }
@@ -407,24 +409,24 @@ caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-pa
   main { padding-block: var(--space-2lg) var(--space-xl); }
   .campaign { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); margin-bottom: var(--space-2lg); }
   .campaign-copy p { max-width: 65ch; }
+  .leaderboard-heading { grid-template-columns: minmax(0, 1fr); }
+  .fundraising-total { border-left: 0; padding-left: 0; }
+  .total-value { font-size: 3rem; }
+  .total-placeholder { font-size: var(--text-2xl); }
   .hero-actions { gap: var(--space-md); }
   .section-intro { font-size: var(--text-md); }
-  .toolbar { align-items: flex-start; flex-direction: column; gap: var(--space-sm); }
-  .sorts { gap: var(--space-lg); }
   .summary { margin-bottom: var(--space-sm); }
   table, tbody { display: block; width: 100%; }
   thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  tbody tr { display: grid; grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-md) var(--space-sm); padding: var(--space-lg) var(--space-sm); border-top: var(--rule-hair) solid var(--line); }
+  tbody tr { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: var(--space-md) var(--space-sm); padding: var(--space-lg) var(--space-sm); border-top: var(--rule-hair) solid var(--line); }
   tbody tr:first-child { border-top: 0; }
   td { border: 0; padding: 0; min-width: 0; }
   .rank { grid-row: 1 / 3; grid-column: 1; }
   td:nth-child(2) { grid-column: 2 / -1; }
-  td:nth-child(3) { grid-column: 2; }
-  td:nth-child(4) { grid-column: 3; }
+  td:nth-child(3) { grid-column: 2 / -1; }
   .numeric { text-align: left; }
   .numeric::before { display: block; margin-bottom: var(--space-2xs); color: var(--muted); font-size: var(--text-xs); }
   td:nth-child(3)::before { content: "Raised"; }
-  td:nth-child(4)::before { content: "Team members"; }
   .value { font-size: var(--text-xl); }
   .amount-long { font-size: var(--text-lg); }
   .amount-very-long { font-size: var(--text-md); }
